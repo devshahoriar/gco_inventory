@@ -136,6 +136,7 @@ model Warehouse {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   Purchase       Purchase[]
   Return         Return[]
+  active         Boolean      @default(true)
 
   @@map("warehouse")
 }
@@ -183,12 +184,13 @@ model supplier {
 }
 
 model ProductGroup {
-  id             String    @id @default(cuid())
-  name           String    @db.VarChar(255)
-  group          String    @db.VarChar(255)
-  description    String?   @db.VarChar(255)
+  id             String     @id @default(cuid())
+  name           String     @db.VarChar(255)
+  group          String     @db.VarChar(255)
+  description    String?    @db.VarChar(255)
   organizationId String
   Product        Product[]
+  ReqItems       ReqItems[]
 }
 
 model ProductUnit {
@@ -259,7 +261,9 @@ model ReqItems {
   remark        String?
   productId     String
   requisitionId String?
+  groupId       String
 
+  group       ProductGroup @relation(fields: [groupId], references: [id])
   product     Product      @relation(fields: [productId], references: [id], onDelete: NoAction)
   Requisition Requisition? @relation(fields: [requisitionId], references: [id], onDelete: Cascade)
 }

@@ -1,5 +1,5 @@
 'use client'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -24,6 +24,7 @@ interface UnitTableProps {
 export function UnitTable({ units }: UnitTableProps) {
   return (
     <Card className="mt-4">
+      <CardContent className="p-3">
       <Table>
         <TableHeader>
           <TableRow>
@@ -52,7 +53,7 @@ export function UnitTable({ units }: UnitTableProps) {
             </TableRow>
           ))}
         </TableBody>
-      </Table>
+      </Table></CardContent>
     </Card>
   )
 }

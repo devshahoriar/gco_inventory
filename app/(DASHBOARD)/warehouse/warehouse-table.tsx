@@ -36,7 +36,7 @@ export function WarehouseTable({ warehouses }: WarehouseTableProps) {
               <TableHead>Address</TableHead>
               <TableHead>Products</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead className="w-[50px]">Actions</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

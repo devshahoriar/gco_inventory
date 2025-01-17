@@ -34,7 +34,7 @@ const SupplierPage = async () => {
       </PageTopBar>
 
       <Card className="mt-4">
-        <CardContent>
+        <CardContent className="p-3">
           <Table>
             <TableHeader>
               <TableRow>
@@ -48,6 +48,13 @@ const SupplierPage = async () => {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {allSuppliers.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center">
+                    No data found
+                  </TableCell>
+                </TableRow>
+              )}
               {allSuppliers.map((supplier) => (
                 <TableRow key={supplier.id}>
                   <TableCell>{supplier.code}</TableCell>
@@ -59,8 +66,12 @@ const SupplierPage = async () => {
                   </TableCell>
                   <TableCell>{supplier.address}</TableCell>
                   <TableCell>
-                    <span className={cn(supplier.status ? 'text-green-500' : 'text-red-500')}>
-                    {supplier.status ? 'Active' : 'Inactive'}
+                    <span
+                      className={cn(
+                        supplier.status ? 'text-green-500' : 'text-red-500'
+                      )}
+                    >
+                      {supplier.status ? 'Active' : 'Inactive'}
                     </span>
                   </TableCell>
                   <TableCell>{supplier.note}</TableCell>

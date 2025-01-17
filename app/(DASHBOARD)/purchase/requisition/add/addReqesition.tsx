@@ -14,8 +14,9 @@ import {
 } from '@/components/ui/select'
 import { PlusCircle, X } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import useSWR from 'swr'
-import { getProductForSelect, getProductGroup } from './action'
+import { getProductForSelect, getProductGroup, saveRequisition } from './action'
 
 const ProductInput = ({
   index,
@@ -26,8 +27,8 @@ const ProductInput = ({
   index: number
   reqItems: Array<{
     productId: string
-    quantity: number
-    price: number
+    quantity: string
+    price: string
     groupId: string
     remarks?: string
   }>
@@ -36,8 +37,8 @@ const ProductInput = ({
 }) => {
   const [fromData, setFormData] = useState({
     productId: reqItems[index]?.productId || '',
-    quantity: reqItems[index]?.quantity || 0,
-    price: reqItems[index]?.price || 0,
+    quantity: reqItems[index]?.quantity || '0',
+    price: reqItems[index]?.price || '0',
     groupId: reqItems[index]?.groupId || '',
     remarks: reqItems[index]?.remarks || '',
   })
@@ -72,9 +73,9 @@ const ProductInput = ({
       >
         <X className="size-4" />
       </Button>
-      <div className="mt-4 space-y-4">
+      <div className="mt-4 grid grid-cols-5 gap-4">
         <div className="space-y-2">
-          <Label>Select Product group</Label>
+          <Label>Group</Label>
           <Select
             disabled={pl}
             value={fromData.groupId}
@@ -83,8 +84,8 @@ const ProductInput = ({
                 ...fromData,
                 groupId: v,
                 productId: '',
-                quantity: 0,
-                price: 0,
+                quantity: '0',
+                price: '0',
               })
               setTimeout(() => mutate(undefined), 0)
             }}
@@ -102,71 +103,66 @@ const ProductInput = ({
           </Select>
         </div>
         {fromData.groupId && (
+          <div className="space-y-2">
+            <Label>Name</Label>
+            <Select
+              disabled={pLo}
+              value={fromData.productId}
+              onValueChange={(v) => {
+                const product = products?.find((p) => p.id === v)
+                if (product) {
+                  setProductUnit(product?.productUnit?.name)
+                }
+                updateItem({
+                  ...fromData,
+                  productId: v,
+                  price: '0',
+                  quantity: '0',
+                })
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Options" />
+              </SelectTrigger>
+              <SelectContent>
+                {products?.map((product) => (
+                  <SelectItem value={product.id} key={product.id}>
+                    {product.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        {fromData.productId && (
           <>
-            <div className="space-y-2">
-              <Label>Select Product</Label>
-              <Select
-                disabled={pLo}
-                value={fromData.productId}
-                onValueChange={(v) => {
-                  const product = products?.find((p) => p.id === v)
-                  if (product) {
-                    setProductUnit(product?.productUnit?.name)
-                  }
-                  updateItem({
-                    ...fromData,
-                    productId: v,
-                    price: 0,
-                    quantity: 0,
-                  })
-                }}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Options" />
-                </SelectTrigger>
-                <SelectContent>
-                  {products?.map((product) => (
-                    <SelectItem value={product.id} key={product.id}>
-                      {product.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            {fromData.productId && (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  <InputParent
-                    labelTitle={`Quantity (${productUnit})`}
-                    type="number"
-                    value={fromData.quantity}
-                    onChange={(e) =>
-                      updateItem({
-                        ...fromData,
-                        quantity: Number(e.target.value),
-                      })
-                    }
-                  />
-                  <InputParent
-                    labelTitle="Price"
-                    type="number"
-                    value={fromData.price}
-                    onChange={(e) =>
-                      updateItem({ ...fromData, price: Number(e.target.value) })
-                    }
-                  />
-                </div>
-                <InputParent
-                  labelTitle="Remarks"
-                  isTextArea
-                  value={fromData.remarks}
-                  onChange={(e) =>
-                    updateItem({ ...fromData, remarks: e.target.value })
-                  }
-                  placeholder="Add notes or remark..."
-                />
-              </>
-            )}
+            <InputParent
+              labelTitle={`Quantity (${productUnit})`}
+              type="number"
+              value={fromData.quantity}
+              onChange={(e) =>
+                updateItem({
+                  ...fromData,
+                  quantity: e.target.value,
+                })
+              }
+            />
+            <InputParent
+              labelTitle="Price"
+              type="number"
+              value={fromData.price}
+              onChange={(e) =>
+                updateItem({ ...fromData, price: e.target.value })
+              }
+            />
+            <InputParent
+              labelTitle="Remarks"
+              value={fromData.remarks}
+              onChange={(e) =>
+                updateItem({ ...fromData, remarks: e.target.value })
+              }
+              placeholder="Add notes or remark..."
+            />
           </>
         )}
       </div>
@@ -182,8 +178,8 @@ export const AddRequisition = () => {
     naration: '',
     reqItems: [] as {
       productId: string
-      quantity: number
-      price: number
+      quantity: string
+      price: string
       groupId: string
       remark?: string
     }[],
@@ -193,16 +189,41 @@ export const AddRequisition = () => {
     setFormData((prev) => ({ ...prev, reqItems: items }))
   }
 
-  const removeItem = (index: number) => {
-    setProdCount((prev) => prev - 1)
-    setFormData((prev) => ({
-      ...prev,
-      reqItems: prev.reqItems.filter((_, i) => i !== index),
-    }))
-  }
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleAdd = () => {
-    // Add your API call or form submission logic here
+  const handleAdd = async () => {
+    setError('')
+    if (!formData.regNumber) {
+      return setError('Please fill Requisition number.')
+    }
+    if (formData.reqItems.length === 0) {
+      return setError('Please add products to requisition.')
+    }
+
+    formData?.reqItems.forEach((item) => {
+      if (!item.groupId || !item.productId || !item.quantity || !item.price) {
+        return setError('Please fill all product details.')
+      }
+    })
+    try {
+      setLoading(true)
+      await saveRequisition(formData)
+      setFormData({
+        regNumber: '',
+        reqDate: new Date(),
+        naration: '',
+        reqItems: [],
+      })
+      setProdCount(0)
+      toast.success('Requisition added successfully')
+    } catch (error: Error | any) {
+      console.log(error)
+      setError(error?.message)
+    } finally {
+      setLoading(false)
+    }
+
     console.log(formData)
   }
 
@@ -212,13 +233,19 @@ export const AddRequisition = () => {
       ...prev,
       reqItems: [
         ...prev.reqItems,
-        { productId: '', quantity: 0, price: 0, groupId: '' },
+        { productId: '', quantity: '0', price: '0', groupId: '' },
       ],
     }))
   }
-
+  const removeItem = (index: number) => {
+    setProdCount((prev) => prev - 1)
+    setFormData((prev) => ({
+      ...prev,
+      reqItems: prev.reqItems.filter((_, i) => i !== index),
+    }))
+  }
   return (
-    <div className="max-w-2xl mx-auto p-4">
+    <div className="max-w-4xl mx-auto p-2">
       <div className="space-y-4">
         <InputParent
           labelTitle="Registration Number"
@@ -271,14 +298,18 @@ export const AddRequisition = () => {
             </div>
           </div>
         )}
+
         <Button type="button" variant="outline" onClick={addProduct}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Add Product
         </Button>
-        <div className="pt-4">
-          <Button onClick={handleAdd} className="w-full">
-            Submit Requisition
-          </Button>
+        <div className="!mt-2">
+          <div className="text-red-500 text-sm h-[20px] !mb-1">{error}</div>
+          <div className="">
+            <Button onClick={handleAdd} disabled={loading} className="w-full">
+              Submit Requisition
+            </Button>
+          </div>
         </div>
       </div>
     </div>

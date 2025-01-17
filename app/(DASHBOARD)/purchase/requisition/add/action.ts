@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 'use server'
 
-import { getUser } from "@/lib/auth"
-import prisma from "@/prisma/db"
-import { headers } from "next/headers"
+import { getUser } from '@/lib/auth'
+import prisma from '@/prisma/db'
+import { headers } from 'next/headers'
 
 export const getProductGroup = async () => {
   const user = await getUser(headers)
@@ -38,4 +39,54 @@ export const getProductForSelect = async (guId: string) => {
       },
     },
   })
+}
+
+type DATA =  {
+  regNumber: string;
+  reqDate: Date;
+  naration: string;
+  reqItems: {
+      productId: string;
+      quantity: string;
+      price: string;
+      groupId: string;
+      remark?: string;
+  }[];
+}
+
+export const saveRequisition = async (data: DATA) => {
+  try {
+    const user = await getUser(headers) 
+    
+    return await prisma.$transaction(async (tx) => {
+      // Create requisition header
+      const requisition = await tx.requisition.create({
+        data: {
+          regNumber: data.regNumber,
+          reqDate: data.reqDate,
+          naration: data.naration,
+          organizationId: user?.activeOrganizationId!,
+          creatorId: user?.id!,
+        }
+      })
+
+      // Create requisition items
+      const reqItems = await tx.reqItems.createMany({
+        data: data.reqItems.map(item => ({
+          requisitionId: requisition.id,
+          productId: item.productId,
+          quantity: parseInt(item.quantity),
+          price: parseFloat(item.price),
+          remark: item?.remark || null,
+          groupId: item?.groupId,
+        }))
+      })
+
+      return { requisition, itemsCreated: reqItems.count }
+    })
+    
+  } catch (error) {
+    console.log(error)
+    throw new Error('Server error.')
+  }
 }

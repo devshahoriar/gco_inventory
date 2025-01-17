@@ -21,7 +21,16 @@ export const getAllReq = async (orgId: string) => {
       naration: true,
       regNumber: true,
       reqDate: true,
-      reqItems: true,
+      reqItems: {
+        select: {
+          id: true,
+          productId: true,
+          quantity: true,
+          price: true,
+          groupId: true,
+          remark: true,
+        },
+      },
       updatedAt: true,
     },
   })

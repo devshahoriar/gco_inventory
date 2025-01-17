@@ -77,6 +77,7 @@ export const auth = betterAuth({
     },
   },
   trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL!],
+  baseURL: process.env.NEXT_PUBLIC_APP_URL!,
 })
 
 export interface UserType {
@@ -84,8 +85,8 @@ export interface UserType {
   name: string
   email: string
   image: string | null
-  role: string 
-  permissions: string 
+  role: string
+  permissions: string
   active: boolean
   activeOrganizationId: string
 }

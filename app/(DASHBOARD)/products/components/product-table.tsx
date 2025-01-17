@@ -30,19 +30,11 @@ interface ProductTableProps {
 export function ProductTable({ products }: ProductTableProps) {
 
   
-  if (products.length === 0) {
-    return (
-      <Card>
-        <CardContent className="flex h-[150px] items-center justify-center text-muted-foreground">
-          No products found
-        </CardContent>
-      </Card>
-    )
-  }
+
 
   return (
     <Card>
-      <CardContent className="p-6">
+      <CardContent className="p-3">
         <Table>
           <TableHeader>
             <TableRow>
@@ -53,6 +45,13 @@ export function ProductTable({ products }: ProductTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
+          {products.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center">
+                No data found
+              </TableCell>
+            </TableRow>
+          )}
             {products.map((product) => (
               <TableRow key={product.id}>
                 <TableCell className="font-medium">{product.name}</TableCell>

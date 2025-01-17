@@ -32,7 +32,7 @@ export const FullPageLoder = () => {
   return (
     <div className="w-full h-[95vh] flex justify-center items-center cursor-wait">
       <div className="flex flex-col items-center gap-4">
-        <h1 className="text-6xl font-bold">GCO</h1>
+        <h1 className="text-6xl font-bold">Loading...</h1>
         <LoaderPinwheel className="animate-spin size-8 opacity-80" />
       </div>
     </div>

@@ -9,7 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { EditGroup } from './client'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 
 interface GroupTableProps {
   groups: {
@@ -23,13 +23,14 @@ interface GroupTableProps {
 export const GroupTable = ({ groups }: GroupTableProps) => {
   return (
     <Card className="mt-3">
+      <CardContent className="p-3">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Group Code</TableHead>
             <TableHead>Description</TableHead>
-            <TableHead className="w-[50px]">Edit</TableHead>
+            <TableHead>Edit</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -52,6 +53,7 @@ export const GroupTable = ({ groups }: GroupTableProps) => {
           ))}
         </TableBody>
       </Table>
+      </CardContent>
     </Card>
   )
 }
