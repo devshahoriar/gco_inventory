@@ -1,0 +1,265 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "./out"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id
+  name          String        @db.Text
+  email         String        @unique
+  emailVerified Boolean
+  image         String?       @db.Text
+  createdAt     DateTime
+  updatedAt     DateTime
+  active        Boolean?      @default(true)
+  accounts      Account[]
+  invitations   Invitation[]
+  members       Member[]
+  sessions      Session[]
+  Requisition   Requisition[]
+
+  @@map("user")
+}
+
+model Session {
+  id                   String   @id
+  expiresAt            DateTime
+  token                String   @unique
+  createdAt            DateTime
+  updatedAt            DateTime
+  ipAddress            String?  @db.Text
+  userAgent            String?  @db.Text
+  userId               String
+  activeOrganizationId String?  @db.Text
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String    @db.Text
+  providerId            String    @db.Text
+  userId                String
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?   @db.Text
+  password              String?   @db.Text
+  createdAt             DateTime
+  updatedAt             DateTime
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String    @db.Text
+  value      String    @db.Text
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+model OrgLogo {
+  id           String         @id
+  fileId       String         @db.Text
+  url          String         @db.Text
+  Organization Organization[]
+}
+
+model Organization {
+  id          String        @id @default(cuid())
+  name        String        @db.Text
+  slug        String        @unique
+  createdAt   DateTime
+  metadata    String?       @db.Text
+  logoId      String?
+  invitations Invitation[]
+  members     Member[]
+  logo        OrgLogo?      @relation(fields: [logoId], references: [id])
+  Product     Product[]
+  Warehouse   Warehouse[]
+  supplier    supplier[]
+  Purchase    Purchase[]
+  Return      Return[]
+  Requisition Requisition[]
+
+  @@map("organization")
+}
+
+model Member {
+  id             String       @id @default(cuid())
+  organizationId String
+  userId         String
+  role           String       @db.Text
+  createdAt      DateTime
+  ban            Boolean?     @default(false)
+  permissions    String?      @db.Text
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("member")
+}
+
+model Invitation {
+  id             String       @id @default(cuid())
+  organizationId String
+  email          String       @db.Text
+  role           String?      @db.Text
+  status         String       @db.Text
+  expiresAt      DateTime
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("invitation")
+}
+
+model Warehouse {
+  id             String       @id @default(cuid())
+  name           String       @db.Text
+  description    String?      @db.Text
+  address        String       @db.Text
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  Purchase       Purchase[]
+  Return         Return[]
+
+  @@map("warehouse")
+}
+
+model ProductImage {
+  id      String    @id @default(cuid())
+  fileId  String    @db.Text
+  url     String    @db.Text
+  Product Product[]
+}
+
+model Product {
+  id             String        @id @default(cuid())
+  name           String        @db.VarChar(255)
+  description    String?       @db.VarChar(255)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  organizationId String
+  productImageId String?
+  productGroupId String
+  productUnitId  String
+  productUnit    ProductUnit   @relation(fields: [productUnitId], references: [id])
+  ProductGroup   ProductGroup  @relation(fields: [productGroupId], references: [id])
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  ProductImage   ProductImage? @relation(fields: [productImageId], references: [id])
+  ReqItems       ReqItems[]
+
+  @@map("product")
+}
+
+model supplier {
+  id             String       @id @default(dbgenerated("(uuid())")) @db.VarChar(100)
+  code           String       @db.VarChar(100)
+  name           String       @db.VarChar(255)
+  address        String?      @db.VarChar(255)
+  phone          String?      @db.VarChar(20)
+  email          String?      @db.VarChar(100)
+  status         Boolean      @default(true)
+  note           String?      @db.VarChar(255)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@map("supplier")
+}
+
+model ProductGroup {
+  id             String    @id @default(cuid())
+  name           String    @db.VarChar(255)
+  group          String    @db.VarChar(255)
+  description    String?   @db.VarChar(255)
+  organizationId String
+  Product        Product[]
+}
+
+model ProductUnit {
+  id             String    @id @default(cuid())
+  name           String    @db.VarChar(100)
+  unit           String    @db.VarChar(100)
+  description    String?   @db.VarChar(255)
+  organizationId String
+  Product        Product[]
+}
+
+model Purchase {
+  id             String   @id @default(cuid())
+  description    String?  @db.Text
+  price          Float
+  currency       String?  @default("taka")
+  discount       Float?   @default(0)
+  quantity       Int
+  metadata       String?  @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime
+  organizationId String
+  warehouseId    String
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  warehouse    Warehouse    @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@map("purchase")
+}
+
+model Return {
+  id             String   @id @default(cuid())
+  description    String?  @db.Text
+  price          Float
+  currency       String?  @default("taka")
+  discount       Float?   @default(0)
+  quantity       Int
+  metadata       String?  @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime
+  organizationId String
+  warehouseId    String
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  warehouse    Warehouse    @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@map("return")
+}
+
+model Requisition {
+  id             String       @id @default(cuid())
+  regNumber      String       @unique @db.VarChar(100)
+  reqDate        DateTime
+  naration       String?      @db.Text
+  reqItems       ReqItems[]
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  creatorId      String
+  creator        User         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model ReqItems {
+  id            String  @id @default(cuid())
+  quantity      Int
+  price         Float
+  remark        String?
+  productId     String
+  requisitionId String?
+
+  product     Product      @relation(fields: [productId], references: [id], onDelete: NoAction)
+  Requisition Requisition? @relation(fields: [requisitionId], references: [id], onDelete: Cascade)
+}
