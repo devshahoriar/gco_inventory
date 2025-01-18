@@ -21,13 +21,27 @@ export const getAllReq = async (orgId: string) => {
       naration: true,
       regNumber: true,
       reqDate: true,
+      creator: {
+        select: {
+          name: true,
+        },
+      },
       reqItems: {
         select: {
           id: true,
           productId: true,
+          product: {
+            select: {
+              name: true,
+            },
+          },
           quantity: true,
-          price: true,
           groupId: true,
+          group: {
+            select: {
+              name: true,
+            },
+          },
           remark: true,
         },
       },

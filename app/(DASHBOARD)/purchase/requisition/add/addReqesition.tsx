@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { PlusCircle, X } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import useSWR from 'swr'
 import { getProductForSelect, getProductGroup, saveRequisition } from './action'
@@ -28,7 +28,6 @@ const ProductInput = ({
   reqItems: Array<{
     productId: string
     quantity: string
-    price: string
     groupId: string
     remarks?: string
   }>
@@ -38,7 +37,6 @@ const ProductInput = ({
   const [fromData, setFormData] = useState({
     productId: reqItems[index]?.productId || '',
     quantity: reqItems[index]?.quantity || '0',
-    price: reqItems[index]?.price || '0',
     groupId: reqItems[index]?.groupId || '',
     remarks: reqItems[index]?.remarks || '',
   })
@@ -73,7 +71,7 @@ const ProductInput = ({
       >
         <X className="size-4" />
       </Button>
-      <div className="mt-4 grid grid-cols-5 gap-4">
+      <div className="mt-4 grid md:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-2">
         <div className="space-y-2">
           <Label>Group</Label>
           <Select
@@ -85,7 +83,6 @@ const ProductInput = ({
                 groupId: v,
                 productId: '',
                 quantity: '0',
-                price: '0',
               })
               setTimeout(() => mutate(undefined), 0)
             }}
@@ -116,7 +113,6 @@ const ProductInput = ({
                 updateItem({
                   ...fromData,
                   productId: v,
-                  price: '0',
                   quantity: '0',
                 })
               }}
@@ -148,14 +144,6 @@ const ProductInput = ({
               }
             />
             <InputParent
-              labelTitle="Price"
-              type="number"
-              value={fromData.price}
-              onChange={(e) =>
-                updateItem({ ...fromData, price: e.target.value })
-              }
-            />
-            <InputParent
               labelTitle="Remarks"
               value={fromData.remarks}
               onChange={(e) =>
@@ -170,20 +158,26 @@ const ProductInput = ({
   )
 }
 
-export const AddRequisition = () => {
+export const AddRequisition = ({ 
+  initialData,
+  onSubmit
+}: { 
+  initialData?: any,
+  onSubmit?: (data: any) => Promise<void>
+}) => {
   const [prodCount, setProdCount] = useState(0)
   const [formData, setFormData] = useState({
-    regNumber: '',
-    reqDate: new Date(),
-    naration: '',
-    reqItems: [] as {
-      productId: string
-      quantity: string
-      price: string
-      groupId: string
-      remark?: string
-    }[],
+    regNumber: initialData?.regNumber || '',
+    reqDate: initialData?.reqDate ? new Date(initialData.reqDate) : new Date(),
+    naration: initialData?.naration || '',
+    reqItems: initialData?.reqItems || []
   })
+
+  useEffect(() => {
+    if (initialData?.reqItems) {
+      setProdCount(initialData.reqItems.length)
+    }
+  }, [initialData])
 
   const updateReqItems = (items: typeof formData.reqItems) => {
     setFormData((prev) => ({ ...prev, reqItems: items }))
@@ -195,28 +189,36 @@ export const AddRequisition = () => {
   const handleAdd = async () => {
     setError('')
     if (!formData.regNumber) {
-      return setError('Please fill Requisition number.')
+      setError('Please fill Requisition number.')
+      return
     }
     if (formData.reqItems.length === 0) {
-      return setError('Please add products to requisition.')
+      setError('Please add products to requisition.')
+      return
     }
-
-    formData?.reqItems.forEach((item) => {
-      if (!item.groupId || !item.productId || !item.quantity || !item.price) {
-        return setError('Please fill all product details.')
+  
+    formData?.reqItems.forEach((item:any) => {
+      if (!item.groupId || !item.productId || item.quantity === '0' || item.quantity === '') {
+        setError('Please fill all product details.')
+        return
       }
     })
+
     try {
       setLoading(true)
-      await saveRequisition(formData)
-      setFormData({
-        regNumber: '',
-        reqDate: new Date(),
-        naration: '',
-        reqItems: [],
-      })
-      setProdCount(0)
-      toast.success('Requisition added successfully')
+      if (onSubmit) {
+        await onSubmit(formData)
+      } else {
+        await saveRequisition(formData)
+        setFormData({
+          regNumber: '',
+          reqDate: new Date(),
+          naration: '',
+          reqItems: [],
+        })
+        setProdCount(0)
+        toast.success('Requisition added successfully')
+      }
     } catch (error: Error | any) {
       console.log(error)
       setError(error?.message)
@@ -224,7 +226,6 @@ export const AddRequisition = () => {
       setLoading(false)
     }
 
-    console.log(formData)
   }
 
   const addProduct = () => {
@@ -233,7 +234,7 @@ export const AddRequisition = () => {
       ...prev,
       reqItems: [
         ...prev.reqItems,
-        { productId: '', quantity: '0', price: '0', groupId: '' },
+        { productId: '', quantity: '0', groupId: '' },
       ],
     }))
   }
@@ -241,7 +242,7 @@ export const AddRequisition = () => {
     setProdCount((prev) => prev - 1)
     setFormData((prev) => ({
       ...prev,
-      reqItems: prev.reqItems.filter((_, i) => i !== index),
+      reqItems: prev.reqItems.filter((_:any, i:any) => i !== index),
     }))
   }
   return (

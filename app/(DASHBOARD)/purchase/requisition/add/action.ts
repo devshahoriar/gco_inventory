@@ -48,7 +48,6 @@ type DATA =  {
   reqItems: {
       productId: string;
       quantity: string;
-      price: string;
       groupId: string;
       remark?: string;
   }[];
@@ -76,7 +75,6 @@ export const saveRequisition = async (data: DATA) => {
           requisitionId: requisition.id,
           productId: item.productId,
           quantity: parseInt(item.quantity),
-          price: parseFloat(item.price),
           remark: item?.remark || null,
           groupId: item?.groupId,
         }))

@@ -257,7 +257,6 @@ model Requisition {
 model ReqItems {
   id            String  @id @default(cuid())
   quantity      Int
-  price         Float
   remark        String?
   productId     String
   requisitionId String?
