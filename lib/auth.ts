@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { PrismaClient } from '@/prisma/out'
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { organization } from 'better-auth/plugins'
 import { headers } from 'next/headers'
 import { cache } from 'react'
 import { getSession } from './authClient'
-
-const prisma = new PrismaClient({})
+import prisma from '@/prisma/db'
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {

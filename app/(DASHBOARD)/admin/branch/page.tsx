@@ -20,7 +20,7 @@ const BranchPage = async () => {
   return (
     <ContentLayout title="Branch">
       <PageTopBar>
-        <PageLeftComponent title="Orders" length={allBrance?.length} />
+        <PageLeftComponent title="Branchs" length={allBrance?.length} />
         <Button variant="outline" asChild>
           <AddBranch />
         </Button>
