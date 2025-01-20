@@ -23,6 +23,7 @@ model User {
   members       Member[]
   sessions      Session[]
   Requisition   Requisition[]
+  Branch        Branch[]
 
   @@map("user")
 }
@@ -95,6 +96,8 @@ model Organization {
   Purchase    Purchase[]
   Return      Return[]
   Requisition Requisition[]
+  Order       Order[]
+  Branch      Branch[]
 
   @@map("organization")
 }
@@ -137,6 +140,7 @@ model Warehouse {
   Purchase       Purchase[]
   Return         Return[]
   active         Boolean      @default(true)
+  Order          Order[]
 
   @@map("warehouse")
 }
@@ -163,6 +167,7 @@ model Product {
   organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   ProductImage   ProductImage? @relation(fields: [productImageId], references: [id])
   ReqItems       ReqItems[]
+  OrderItems     OrderItems[]
 
   @@map("product")
 }
@@ -179,18 +184,20 @@ model supplier {
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
+  Order          Order[]
 
   @@map("supplier")
 }
 
 model ProductGroup {
-  id             String     @id @default(cuid())
-  name           String     @db.VarChar(255)
-  group          String     @db.VarChar(255)
-  description    String?    @db.VarChar(255)
+  id             String       @id @default(cuid())
+  name           String       @db.VarChar(255)
+  group          String       @db.VarChar(255)
+  description    String?      @db.VarChar(255)
   organizationId String
   Product        Product[]
   ReqItems       ReqItems[]
+  OrderItems     OrderItems[]
 }
 
 model ProductUnit {
@@ -240,6 +247,21 @@ model Return {
   @@map("return")
 }
 
+model Branch {
+  id             String       @id @default(cuid())
+  name           String       @db.VarChar(255)
+  description    String?      @db.VarChar(255)
+  address        String       @db.VarChar(255)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  creatorId      String
+  creator        User         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("branch")
+}
+
 model Requisition {
   id             String       @id @default(cuid())
   regNumber      String       @unique @db.VarChar(100)
@@ -252,6 +274,8 @@ model Requisition {
   creator        User         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+
+  Order Order[]
 }
 
 model ReqItems {
@@ -265,4 +289,36 @@ model ReqItems {
   group       ProductGroup @relation(fields: [groupId], references: [id])
   product     Product      @relation(fields: [productId], references: [id], onDelete: NoAction)
   Requisition Requisition? @relation(fields: [requisitionId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id            String       @id @default(cuid())
+  orderNo       String       @unique
+  reqId         String
+  Requisition   Requisition  @relation(fields: [reqId], references: [id], onDelete: Cascade)
+  orderDate     DateTime
+  dueDate       DateTime
+  orgId         String
+  organization  Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  warehouseId   String?
+  warehouse     Warehouse?   @relation(fields: [warehouseId], references: [id], onDelete: SetNull)
+  supplierId    String?
+  supplier      supplier?    @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  supingAddress String
+  remarks       String?
+  OrderItems    OrderItems[]
+}
+
+model OrderItems {
+  id        String  @id @default(cuid())
+  quantity  Int
+  remark    String?
+  priice    Float
+  productId String?
+  orderId   String?
+  groupId   String?
+
+  group   ProductGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  product Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
+  Order   Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
 }

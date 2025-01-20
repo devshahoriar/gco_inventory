@@ -69,7 +69,7 @@
 
 
 .react-date-picker__wrapper{
-  @apply !bg-none text-foreground rounded-md px-2 py-2 !border-none;
+  @apply !bg-none text-foreground rounded-md !px-2 !py-1 !border-none;
 }
 .react-calendar{
   @apply !bg-background !text-foreground;

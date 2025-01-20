@@ -11,6 +11,7 @@ import {
   Settings,
   Users,
   BaggageClaim,
+  ShieldEllipsis,
 } from 'lucide-react'
 
 type Submenu = {
@@ -49,9 +50,23 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: 'Contents',
       menus: [
         {
-          href: '/warehouse',
-          label: 'Warehouse',
-          icon: Building2,
+          href: '',
+          label: 'Admin',
+          icon: ShieldEllipsis,
+          submenus: [
+            {
+              href: '/admin/branch',
+              label: 'Branch',
+            },
+            {
+              href: '/admin/roles',
+              label: 'Roles',
+            },
+            {
+              href: '/warehouse',
+              label: 'Warehouse',
+            },
+          ],
         },
         {
           href: '',
@@ -103,11 +118,7 @@ export function getMenuList(pathname: string): Group[] {
             },
           ],
         },
-        {
-          href: '/order',
-          label: 'Order',
-          icon: AppWindowMac,
-        },
+
         {
           href: '/sales',
           label: 'Sales',
