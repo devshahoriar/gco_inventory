@@ -92,7 +92,7 @@ model Organization {
   logo        OrgLogo?      @relation(fields: [logoId], references: [id])
   Product     Product[]
   Warehouse   Warehouse[]
-  supplier    supplier[]
+  Supplier    Supplier[]
   Purchase    Purchase[]
   Return      Return[]
   Requisition Requisition[]
@@ -172,7 +172,7 @@ model Product {
   @@map("product")
 }
 
-model supplier {
+model Supplier {
   id             String       @id @default(dbgenerated("(uuid())")) @db.VarChar(100)
   code           String       @db.VarChar(100)
   name           String       @db.VarChar(255)
@@ -190,14 +190,13 @@ model supplier {
 }
 
 model ProductGroup {
-  id             String       @id @default(cuid())
-  name           String       @db.VarChar(255)
-  group          String       @db.VarChar(255)
-  description    String?      @db.VarChar(255)
+  id             String     @id @default(cuid())
+  name           String     @db.VarChar(255)
+  group          String     @db.VarChar(255)
+  description    String?    @db.VarChar(255)
   organizationId String
   Product        Product[]
   ReqItems       ReqItems[]
-  OrderItems     OrderItems[]
 }
 
 model ProductUnit {
@@ -258,6 +257,7 @@ model Branch {
   creator        User         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  Order          Order[]
 
   @@map("branch")
 }
@@ -274,8 +274,7 @@ model Requisition {
   creator        User         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
-
-  Order Order[]
+  isOrdered      Boolean      @default(false)
 }
 
 model ReqItems {
@@ -294,31 +293,29 @@ model ReqItems {
 model Order {
   id            String       @id @default(cuid())
   orderNo       String       @unique
-  reqId         String
-  Requisition   Requisition  @relation(fields: [reqId], references: [id], onDelete: Cascade)
   orderDate     DateTime
   dueDate       DateTime
   orgId         String
-  organization  Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  Organization  Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  branceId      String?
+  Branch        Branch?      @relation(fields: [branceId], references: [id], onDelete: SetNull)
   warehouseId   String?
-  warehouse     Warehouse?   @relation(fields: [warehouseId], references: [id], onDelete: SetNull)
+  Warehouse     Warehouse?   @relation(fields: [warehouseId], references: [id], onDelete: SetNull)
   supplierId    String?
-  supplier      supplier?    @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  Supplier      Supplier?    @relation(fields: [supplierId], references: [id], onDelete: SetNull)
   supingAddress String
   remarks       String?
   OrderItems    OrderItems[]
 }
 
 model OrderItems {
-  id        String  @id @default(cuid())
-  quantity  Int
-  remark    String?
-  priice    Float
+  id       String  @id @default(cuid())
+  quantity Int
+  price    Float
+
   productId String?
   orderId   String?
-  groupId   String?
 
-  group   ProductGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  product Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
-  Order   Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  Order   Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
 }

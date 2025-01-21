@@ -13,7 +13,7 @@ const DateInput = ({
 }: {
   className?: string
   onChange?: (value: any) => void
-  value?: Date
+  value?: Date | null | undefined | string
 }) => {
   return (
     <DatePicker

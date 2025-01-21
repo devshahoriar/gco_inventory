@@ -2,6 +2,4 @@
 vendor add in database
 
 
-
-
-add prduct -> product order -> approve product -> 
+/requisition/add --- product search option, Other fild are don't diaper
