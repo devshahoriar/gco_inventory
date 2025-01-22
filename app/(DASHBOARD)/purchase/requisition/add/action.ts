@@ -6,12 +6,17 @@ import { getUser } from '@/lib/auth'
 import prisma from '@/prisma/db'
 import { headers } from 'next/headers'
 
-export const getProductGroup = async () => {
+export const getProductGroup = async (text?: string,id?:string) => {
   const user = await getUser(headers)
+  const whereFilter = {
+    organizationId: user?.activeOrganizationId,
+    ...(text ? { name: { contains: text } } : {}),
+    ...(id ? { id: id } : {}),
+  }
+
   return await prisma.productGroup.findMany({
-    where: {
-      organizationId: user?.activeOrganizationId,
-    },
+    where: whereFilter,
+    take: 20,
     omit: {
       description: true,
       organizationId: true,
@@ -20,20 +25,20 @@ export const getProductGroup = async () => {
   })
 }
 
-export const getProductForSelect = async (guId: string) => {
+export const getProductForSelect = async (guId?: string, v?: string) => {
   const user = await getUser(headers)
   return await prisma.product.findMany({
     where: {
-      productGroupId: guId,
+      ...(guId ? { productGroupId: guId } : {}),
+      ...(v ? { name: { contains: v ,} } : {}),
       organizationId: user?.activeOrganizationId,
     },
     select: {
       id: true,
       name: true,
+      productGroupId: true,
       productUnit: {
         select: {
-          id: true,
-          name: true,
           unit: true,
         },
       },
@@ -89,4 +94,14 @@ export const saveRequisition = async (data: DATA) => {
     }
     throw new Error('Server error.')
   }
+}
+
+export const getReqesitionNumber = async () => {
+  const user = await getUser(headers)
+  const regC = await prisma.requisition.count({
+    where: {
+      organizationId: user?.activeOrganizationId,
+    },
+  })
+  return `REQ-${regC + 1}`
 }

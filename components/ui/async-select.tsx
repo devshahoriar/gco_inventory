@@ -28,7 +28,7 @@ export interface Option {
 
 export interface AsyncSelectProps<T> {
   /** Async function to fetch options */
-  fetcher: (query?: string) => Promise<T[]>;
+  fetcher: (query?: string) => Promise<T[]> | T[];
   /** Preload all data ahead of time */
   preload?: boolean;
   /** Function to filter options */
@@ -46,7 +46,7 @@ export interface AsyncSelectProps<T> {
   /** Currently selected value */
   value: string;
   /** Callback when selection changes */
-  onChange: (value: string) => void;
+  onChange: (value: string,options?:T[]) => void;
   /** Label for the select field */
   label: string;
   /** Placeholder text when no selection */
@@ -79,7 +79,7 @@ export function AsyncSelect<T>({
   value,
   onChange,
   disabled = false,
-  width = "200px",
+  width = "100%",
   className,
   triggerClassName,
   noResultsMessage,
@@ -165,7 +165,7 @@ export function AsyncSelect<T>({
     const newValue = clearable && currentValue === selectedValue ? "" : currentValue;
     setSelectedValue(newValue);
     setSelectedOption(options.find((option) => getOptionValue(option) === newValue) || null);
-    onChange(newValue);
+    onChange(newValue,options);
     setOpen(false);
   }, [selectedValue, onChange, clearable, options, getOptionValue]);
 
@@ -177,7 +177,7 @@ export function AsyncSelect<T>({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "justify-between",
+            "justify-between !bg-transparent",
             disabled && "opacity-50 cursor-not-allowed",
             triggerClassName
           )}
