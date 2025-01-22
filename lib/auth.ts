@@ -2,7 +2,7 @@
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { organization } from 'better-auth/plugins'
-import { headers } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { cache } from 'react'
 import { getSession } from './authClient'
 import prisma from '@/prisma/db'
@@ -97,7 +97,10 @@ export const getUser = cache(
       },
     })) as any
     if (data?.user) {
-      let orgId = data?.session?.activeOrganizationId
+      const co = await cookies()
+
+      let orgId =
+        co.get('activeOrg')?.value || data?.session?.activeOrganizationId
       if (!orgId) {
         const org = await prisma.organization.findFirst({
           where: {
@@ -124,3 +127,20 @@ export const getUser = cache(
     return null
   }
 )
+
+export const getActiveOrg = async () => {
+  const co = await cookies()
+  let orgId = co.get('activeOrg')?.value
+  if (!orgId) {
+    const user = await getUser(headers)
+    orgId = user?.activeOrganizationId
+  }
+  return orgId as string
+}
+
+export const setActiveOrg = async (orgId: string) => {
+  const co = await cookies()
+  co.set('activeOrg', orgId, {
+    expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
+  })
+}

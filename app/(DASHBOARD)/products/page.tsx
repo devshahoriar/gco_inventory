@@ -1,15 +1,14 @@
 import { ContentLayout } from '@/components/admin-panel/content-layout'
 import { PageLeftComponent, PageTopBar } from '@/components/shared/PageElement'
-import { getUser } from '@/lib/auth'
-import { headers } from 'next/headers'
+import { getActiveOrg } from '@/lib/auth'
 import { getAllProductByOrganization } from './action'
 import { AddProduct } from './client'
 import { ProductTable } from './components/product-table'
 
 const ProductPage = async () => {
-  const user = await getUser(headers)
+  const orgId = await getActiveOrg()
   const listProduct = await getAllProductByOrganization(
-    user?.activeOrganizationId as string
+   orgId
   )
 
   return (

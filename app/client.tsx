@@ -26,6 +26,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import slugify from 'slugify'
 import { toast } from 'sonner'
+import { setActiveOrg } from './action'
 
 export function NewOrganization() {
   const [title, setTitle] = useState('')
@@ -37,6 +38,7 @@ export function NewOrganization() {
     const slug = slugify(title, { lower: true })
     const x = await organization.create({ name: title, slug })
     if (!x?.error) {
+      await setActiveOrg(x?.data?.id as string)
       setOpen(false)
       refresh()
       setLoading(false)
@@ -87,7 +89,7 @@ export function SelectOrg({ listOrganization, active }: any) {
         credentials: 'include',
       },
     })
-
+    await setActiveOrg(e)
     refresh()
   }
   return (

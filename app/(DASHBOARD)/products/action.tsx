@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
-import { getUser } from '@/lib/auth'
+import { getActiveOrg } from '@/lib/auth'
 import prisma from '@/prisma/db'
-import { headers } from 'next/headers'
 
 export const getAllProductByOrganization = async (organizationId: string) => {
   return await prisma.product.findMany({
@@ -30,11 +29,11 @@ export const getAllProductByOrganization = async (organizationId: string) => {
 }
 
 export const getAllWarehouseByOrganization = async () => {
-  const user = await getUser(headers)
+  const orgId = await getActiveOrg()
 
   const unit = await prisma.productUnit.findMany({
     where: {
-      organizationId: user?.activeOrganizationId as string,
+      organizationId: orgId
     },
     select: {
       id: true,
@@ -43,7 +42,7 @@ export const getAllWarehouseByOrganization = async () => {
   })
   const productGroup = await prisma.productGroup.findMany({
     where: {
-      organizationId: user?.activeOrganizationId as string,
+      organizationId: orgId
     },
     select: {
       id: true,
@@ -54,24 +53,24 @@ export const getAllWarehouseByOrganization = async () => {
 }
 
 export const createProduct = async (data: any) => {
-  const user = await getUser(headers)
+  const orgId = await getActiveOrg()
   await prisma.product.create({
     data: {
       name: data.name,
       productUnitId: data.unit,
       description: data.description,
-      organizationId: user?.activeOrganizationId as string,
+      organizationId: orgId,
       productGroupId: data.productGroupId,
     },
   })
 }
 
 export const getProductById = async (id: string) => {
-  const user = await getUser(headers)
+  const orgId = await getActiveOrg()
   return await prisma.product.findFirst({
     where: {
       id: id,
-      organizationId: user?.activeOrganizationId as string,
+      organizationId: orgId
     },
     select: {
       id: true,
@@ -94,11 +93,11 @@ export const getProductById = async (id: string) => {
 }
 
 export const updateProduct = async (id: string, data: any) => {
-  const user = await getUser(headers)
+  const orgId = await getActiveOrg()
   await prisma.product.update({
     where: {
       id: id,
-      organizationId: user?.activeOrganizationId as string,
+      organizationId: orgId,
     },
     data: {
       name: data.name,

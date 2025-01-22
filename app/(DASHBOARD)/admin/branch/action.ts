@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
 
-import { getUser } from '@/lib/auth'
+import { getActiveOrg, getUser } from '@/lib/auth'
 import prisma from '@/prisma/db'
 import { headers } from 'next/headers'
 
 export const getAllBranch = async () => {
-  const user = await getUser(headers)
+  const orgId = await getActiveOrg()
   return await prisma.branch.findMany({
     where: {
-      organizationId: user?.activeOrganizationId,
+      organizationId: orgId,
     },
     select: {
       address: true,
@@ -38,11 +38,11 @@ export const addBranch = async (data: any) => {
 }
 
 export const editBranch = async (id: string, data: any) => {
-  const user = (await getUser(headers)) as any
+  const orgId = await getActiveOrg()
   return await prisma.branch.update({
     where: {
       id,
-      organizationId: user?.activeOrganizationId,
+      organizationId: orgId,
     },
     data: {
       address: data.address,
@@ -53,11 +53,11 @@ export const editBranch = async (id: string, data: any) => {
 }
 
 export const deleteBranch = async (id: string) => {
-  const user = (await getUser(headers)) as any
+  const orgId = await getActiveOrg()
   return await prisma.branch.delete({
     where: {
       id,
-      organizationId: user?.activeOrganizationId,
+      organizationId: orgId,
     },
   })
 }

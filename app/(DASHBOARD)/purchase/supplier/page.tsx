@@ -9,28 +9,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { getUser } from '@/lib/auth'
-import { headers } from 'next/headers'
+import { getActiveOrg } from '@/lib/auth'
+import { cn } from '@/lib/utils'
 import { countSupplier, getAllSupplier } from './action'
 import AddNewSupplier from './AddNewSuplayer'
-import EditSupplier from './EditSupplier'
 import DeleteSupplier from './DeleteSupplier'
-import { cn } from '@/lib/utils'
+import EditSupplier from './EditSupplier'
 
 const SupplierPage = async () => {
-  const user = await getUser(headers)
-  const countSuppliers = await countSupplier(
-    user?.activeOrganizationId as string
-  )
-  const allSuppliers = await getAllSupplier(
-    user?.activeOrganizationId as string
-  )
+  const orgId = await getActiveOrg()
+  const countSuppliers = await countSupplier(orgId)
+  const allSuppliers = await getAllSupplier(orgId)
 
   return (
     <ContentLayout title="Supplier">
       <PageTopBar>
         <PageLeftComponent title="Supplier" length={countSuppliers} />
-        <AddNewSupplier orgId={user?.activeOrganizationId as string} />
+        <AddNewSupplier orgId={orgId} />
       </PageTopBar>
 
       <Card className="mt-4">

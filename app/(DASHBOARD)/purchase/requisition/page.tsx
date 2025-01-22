@@ -1,11 +1,6 @@
 import { ContentLayout } from '@/components/admin-panel/content-layout'
 import { PageLeftComponent, PageTopBar } from '@/components/shared/PageElement'
 import { Button } from '@/components/ui/button'
-import { getUser } from '@/lib/auth'
-import { PlusCircle } from 'lucide-react'
-import { headers } from 'next/headers'
-import Link from 'next/link'
-import { countReq, getAllReq } from './action'
 import {
   Table,
   TableBody,
@@ -14,12 +9,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { getActiveOrg } from '@/lib/auth'
 import { format } from 'date-fns'
+import { PlusCircle } from 'lucide-react'
+import Link from 'next/link'
+import { countReq, getAllReq } from './action'
 
 const RequisitionPage = async () => {
-  const user = await getUser(headers)
-  const count = await countReq(user?.activeOrganizationId as string)
-  const getAllreqs = await getAllReq(user?.activeOrganizationId as string)
+  const orgId = await getActiveOrg()
+  const count = await countReq(orgId)
+  const getAllreqs = await getAllReq(orgId)
 
   return (
     <ContentLayout title="Requisition">

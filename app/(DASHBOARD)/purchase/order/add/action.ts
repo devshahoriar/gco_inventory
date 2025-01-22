@@ -1,15 +1,14 @@
 'use server'
-import { getUser } from '@/lib/auth'
+import { getActiveOrg } from '@/lib/auth'
 import prisma from '@/prisma/db'
-import { headers } from 'next/headers'
 
 export const getInitialData = async () => {
-  const user = await getUser(headers)
+  const orgId = await getActiveOrg()
   const [regList, branchList, supliyaerList, wareHouseList] = await Promise.all(
     [
       prisma.requisition.findMany({
         where: {
-          organizationId: user?.activeOrganizationId,
+          organizationId: orgId,
         },
         select: {
           id: true,
@@ -23,7 +22,7 @@ export const getInitialData = async () => {
       }),
       prisma.branch.findMany({
         where: {
-          organizationId: user?.activeOrganizationId,
+          organizationId: orgId,
         },
         select: {
           id: true,
@@ -32,7 +31,7 @@ export const getInitialData = async () => {
       }),
       prisma.supplier.findMany({
         where: {
-          organizationId: user?.activeOrganizationId,
+          organizationId: orgId,
         },
         select: {
           id: true,
@@ -41,7 +40,7 @@ export const getInitialData = async () => {
       }),
       prisma.warehouse.findMany({
         where: {
-          organizationId: user?.activeOrganizationId,
+          organizationId: orgId,
         },
         select: {
           id: true,

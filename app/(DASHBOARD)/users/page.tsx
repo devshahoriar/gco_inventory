@@ -1,8 +1,8 @@
 import { ContentLayout } from '@/components/admin-panel/content-layout'
 import { PageTopBar } from '@/components/shared/PageElement'
-import { getUser, UserType } from '@/lib/auth'
-import { headers } from 'next/headers'
-import { getAllMembersByOrgId } from './action'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -11,20 +11,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { getActiveOrg } from '@/lib/auth'
 import { format } from 'date-fns'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from "@/components/ui/badge"
+import { getAllMembersByOrgId } from './action'
 import EditUser from './EditUser'
 
-const ALL_PERMISSIONS = ["all"]
+const ALL_PERMISSIONS = ['all']
 
 const ManageUserPage = async () => {
-  const user = (await getUser(headers)) as UserType
-  const getAllMembers = await getAllMembersByOrgId(
-    user.activeOrganizationId as string
-  )
-  console.log(getAllMembers)
+  const orgId = await getActiveOrg()
+  const getAllMembers = await getAllMembersByOrgId(orgId)
 
   return (
     <ContentLayout title="Users">
@@ -72,11 +68,11 @@ const ManageUserPage = async () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
-                        {(member.role === 'owner' 
-                          ? ALL_PERMISSIONS 
+                        {(member.role === 'owner'
+                          ? ALL_PERMISSIONS
                           : member.permissions?.split(',') || []
                         ).map((permission) => (
-                          <Badge 
+                          <Badge
                             key={permission}
                             variant="secondary"
                             className="capitalize"
@@ -101,7 +97,7 @@ const ManageUserPage = async () => {
                       {format(new Date(member.createdAt), 'PPP')}
                     </TableCell>
                     <TableCell>
-                      <EditUser/>
+                      <EditUser />
                     </TableCell>
                   </TableRow>
                 ))}

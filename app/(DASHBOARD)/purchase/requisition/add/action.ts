@@ -2,14 +2,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 'use server'
 
-import { getUser } from '@/lib/auth'
+import { getActiveOrg, getUser } from '@/lib/auth'
 import prisma from '@/prisma/db'
 import { headers } from 'next/headers'
 
-export const getProductGroup = async (text?: string,id?:string) => {
-  const user = await getUser(headers)
+export const getProductGroup = async (text?: string, id?: string) => {
+  const orgId = await getActiveOrg()
   const whereFilter = {
-    organizationId: user?.activeOrganizationId,
+    organizationId: orgId,
     ...(text ? { name: { contains: text } } : {}),
     ...(id ? { id: id } : {}),
   }
@@ -26,13 +26,14 @@ export const getProductGroup = async (text?: string,id?:string) => {
 }
 
 export const getProductForSelect = async (guId?: string, v?: string) => {
-  const user = await getUser(headers)
+  const orgId = await getActiveOrg()
   return await prisma.product.findMany({
     where: {
       ...(guId ? { productGroupId: guId } : {}),
-      ...(v ? { name: { contains: v ,} } : {}),
-      organizationId: user?.activeOrganizationId,
+      ...(v ? { name: { contains: v } } : {}),
+      organizationId: orgId,
     },
+    take: 20,
     select: {
       id: true,
       name: true,
@@ -97,10 +98,10 @@ export const saveRequisition = async (data: DATA) => {
 }
 
 export const getReqesitionNumber = async () => {
-  const user = await getUser(headers)
+  const orgId = await getActiveOrg()
   const regC = await prisma.requisition.count({
     where: {
-      organizationId: user?.activeOrganizationId,
+      organizationId: orgId,
     },
   })
   return `REQ-${regC + 1}`

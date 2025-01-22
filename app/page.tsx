@@ -65,23 +65,7 @@ export default async function Home() {
       slug: true,
     },
   })
-
-  // const activeOrganization = user?.activeOrganizationId
-  //   ? await prisma.organization.findFirst({
-  //       where: {
-  //         id: user?.activeOrganizationId as string,
-  //       },
-  //       select: {
-  //         id: true,
-  //         name: true,
-  //         _count: {
-  //           select: {
-  //             members: true,
-  //           },
-  //         },
-  //       },
-  //     })
-  //   : null
+  console.log(listOrganization,user?.activeOrganizationId)
 
   return (
     <div className="container mx-auto p-6 space-y-6">
