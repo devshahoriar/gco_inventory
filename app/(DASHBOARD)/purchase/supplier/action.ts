@@ -2,27 +2,41 @@
 'use server'
 
 import prisma from '@/prisma/db'
+import { revalidateTag, unstable_cache } from 'next/cache'
 
-export const countSupplier = async (organizationId: string) => {
-  return await prisma.supplier.count({
-    where: {
-      organizationId: organizationId,
-    },
-  })
-}
+export const countSupplier = unstable_cache(
+  async (organizationId: string) => {
+    return prisma.supplier.count({
+      where: {
+        organizationId: organizationId,
+      },
+    })
+  },
+  undefined,
+  {
+    tags: ['supplier'],
+  }
+)
 
-export const getAllSupplier = async (organizationId: string) => {
-  return await prisma.supplier.findMany({
-    where: {
-      organizationId: organizationId,
-    },
-    omit: {
-      organizationId: true,
-    },
-  })
-}
+export const getAllSupplier = unstable_cache(
+  async (organizationId: string) => {
+    return prisma.supplier.findMany({
+      where: {
+        organizationId: organizationId,
+      },
+      omit: {
+        organizationId: true,
+      },
+    })
+  },
+  undefined,
+  {
+    tags: ['supplier'],
+  }
+)
 
 export const createSupplier = async (data: any) => {
+  revalidateTag('supplier')
   try {
     const supplier = await prisma.supplier.create({
       data: {
@@ -34,9 +48,9 @@ export const createSupplier = async (data: any) => {
         note: data.note,
         organizationId: data.orgId,
       },
-      select:{
-        id:true,
-      }
+      select: {
+        id: true,
+      },
     })
     return { success: true, data: supplier }
   } catch (error) {
@@ -46,6 +60,7 @@ export const createSupplier = async (data: any) => {
 }
 
 export const updateSupplier = async (id: string, data: any) => {
+  revalidateTag('supplier')
   try {
     const supplier = await prisma.supplier.update({
       where: { id },
@@ -56,7 +71,7 @@ export const updateSupplier = async (id: string, data: any) => {
         phone: data.phone,
         email: data.email,
         note: data.note,
-        status: data.status
+        status: data.status,
       },
     })
     return { success: true, data: supplier }
@@ -67,6 +82,7 @@ export const updateSupplier = async (id: string, data: any) => {
 }
 
 export const deleteSupplier = async (id: string) => {
+  revalidateTag('supplier')
   try {
     await prisma.supplier.delete({
       where: { id },

@@ -4,6 +4,7 @@
 
 import { getActiveOrg, getUser } from '@/lib/auth'
 import prisma from '@/prisma/db'
+import { revalidateTag } from 'next/cache'
 import { headers } from 'next/headers'
 
 export const getProductGroup = async (text?: string, id?: string) => {
@@ -86,10 +87,12 @@ export const saveRequisition = async (data: DATA) => {
         })),
       })
 
+      revalidateTag('requisition')
       return { requisition, itemsCreated: reqItems.count }
     })
   } catch (error: any) {
     console.log(error)
+    revalidateTag('requisition')
     if (error.code === 'P2002') {
       throw new Error('Requisition number already exists.')
     }

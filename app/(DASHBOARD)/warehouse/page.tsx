@@ -3,9 +3,11 @@ import { PageTopBar } from '@/components/shared/PageElement'
 import { NewWareHouse } from './client'
 import { getWarehouses } from './action'
 import { WarehouseTable } from './warehouse-table'
+import { getActiveOrg } from '@/lib/auth'
 
 export default async function WareHousePage() {
-  const warehouses = await getWarehouses()
+  const orgId = await getActiveOrg()
+  const warehouses = await getWarehouses(orgId)
 
   return (
     <ContentLayout title="Warehouses">

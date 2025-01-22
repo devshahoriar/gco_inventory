@@ -2,11 +2,10 @@
 
 import { getActiveOrg } from '@/lib/auth'
 import prisma from '@/prisma/db'
+import { revalidateTag, unstable_cache } from 'next/cache'
 
-export async function getWarehouses() {
-  const orgId = await getActiveOrg()
-
-  return await prisma.warehouse.findMany({
+export const getWarehouses = unstable_cache(async (orgId: string) => {
+  return prisma.warehouse.findMany({
     where: {
       organizationId: orgId,
     },
@@ -24,7 +23,9 @@ export async function getWarehouses() {
       },
     },
   })
-}
+},undefined,{
+  tags: ['warehouse'],
+})
 
 export const addNewWarehouse = async (formData: FormData) => {
   const name = formData.get('name') as string
@@ -43,7 +44,7 @@ export const addNewWarehouse = async (formData: FormData) => {
       id: true,
     },
   })
-
+  revalidateTag('warehouse')
   return {
     success: true,
   }
@@ -62,7 +63,7 @@ export const updateWarehouse = async (id: string, formData: FormData) => {
       description,
     },
   })
-
+  revalidateTag('warehouse')
   return {
     success: true,
   }

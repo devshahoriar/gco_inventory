@@ -65,7 +65,6 @@ export default async function Home() {
       slug: true,
     },
   })
-  console.log(listOrganization,user?.activeOrganizationId)
 
   return (
     <div className="container mx-auto p-6 space-y-6">

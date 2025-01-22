@@ -14,9 +14,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { format } from "date-fns"
+import { getActiveOrg } from '@/lib/auth'
 
 const BranchPage = async () => {
-  const allBrance = await getAllBranch()
+  const orgId = await getActiveOrg()
+  const allBrance = await getAllBranch(orgId)
   return (
     <ContentLayout title="Branch">
       <PageTopBar>

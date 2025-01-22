@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { organization } from '@/lib/authClient'
-import { Plus } from 'lucide-react'
+import { Loader, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import slugify from 'slugify'
@@ -39,10 +39,10 @@ export function NewOrganization() {
     const x = await organization.create({ name: title, slug })
     if (!x?.error) {
       await setActiveOrg(x?.data?.id as string)
-      setOpen(false)
       refresh()
       setLoading(false)
       setTitle('')
+      setOpen(false)
     } else {
       toast.error(x?.error?.message)
       setLoading(false)
@@ -82,7 +82,9 @@ export function NewOrganization() {
 
 export function SelectOrg({ listOrganization, active }: any) {
   const { refresh } = useRouter()
+  const [loading, setLoading] = useState(false)
   const hendelChange = async (e: any) => {
+    setLoading(true)
     await organization.setActive({
       organizationId: e,
       fetchOptions: {
@@ -91,6 +93,7 @@ export function SelectOrg({ listOrganization, active }: any) {
     })
     await setActiveOrg(e)
     refresh()
+    setLoading(false)
   }
   return (
     <Select onValueChange={hendelChange} defaultValue={active}>
@@ -100,7 +103,12 @@ export function SelectOrg({ listOrganization, active }: any) {
       <SelectContent>
         {listOrganization.map((org: any) => (
           <SelectItem key={org.id} value={org.id}>
-            {org.name}
+            <span className='flex items-center gap-4'>
+              {org.name}{' '}
+              {loading && (
+                <Loader size={20} className="dark:text-white animate-spin" />
+              )}
+            </span>
           </SelectItem>
         ))}
       </SelectContent>

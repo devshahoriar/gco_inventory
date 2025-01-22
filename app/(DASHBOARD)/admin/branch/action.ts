@@ -3,26 +3,33 @@
 
 import { getActiveOrg, getUser } from '@/lib/auth'
 import prisma from '@/prisma/db'
+import { revalidateTag, unstable_cache } from 'next/cache'
 import { headers } from 'next/headers'
 
-export const getAllBranch = async () => {
-  const orgId = await getActiveOrg()
-  return await prisma.branch.findMany({
-    where: {
-      organizationId: orgId,
-    },
-    select: {
-      address: true,
-      createdAt: true,
-      description: true,
-      id: true,
-      name: true,
-    },
-  })
-}
+export const getAllBranch = unstable_cache(
+  async (orgId: string) => {
+    return prisma.branch.findMany({
+      where: {
+        organizationId: orgId,
+      },
+      select: {
+        address: true,
+        createdAt: true,
+        description: true,
+        id: true,
+        name: true,
+      },
+    })
+  },
+  undefined,
+  {
+    tags: ['branch'],
+  }
+)
 
 export const addBranch = async (data: any) => {
   const user = (await getUser(headers)) as any
+  revalidateTag('branch')
   return await prisma.branch.create({
     data: {
       address: data.address,
@@ -39,6 +46,7 @@ export const addBranch = async (data: any) => {
 
 export const editBranch = async (id: string, data: any) => {
   const orgId = await getActiveOrg()
+  revalidateTag('branch')
   return await prisma.branch.update({
     where: {
       id,
@@ -54,6 +62,7 @@ export const editBranch = async (id: string, data: any) => {
 
 export const deleteBranch = async (id: string) => {
   const orgId = await getActiveOrg()
+  revalidateTag('branch')
   return await prisma.branch.delete({
     where: {
       id,

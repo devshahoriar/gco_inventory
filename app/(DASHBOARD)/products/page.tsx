@@ -7,9 +7,7 @@ import { ProductTable } from './components/product-table'
 
 const ProductPage = async () => {
   const orgId = await getActiveOrg()
-  const listProduct = await getAllProductByOrganization(
-   orgId
-  )
+  const listProduct = await getAllProductByOrganization(orgId)
 
   return (
     <ContentLayout title="Product">

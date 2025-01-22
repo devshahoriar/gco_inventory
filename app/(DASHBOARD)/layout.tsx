@@ -6,6 +6,7 @@ import { ReactNode } from 'react'
 import { getOrgById } from './action'
 import { Button } from '@/components/ui/button'
 
+
 import Link from 'next/link'
 import { Home } from 'lucide-react'
 
@@ -20,7 +21,7 @@ const layout = async ({ children }: { children: ReactNode }) => {
         <h1 className="text-3xl text-center">
           First Join or Create Organization.
         </h1>
-        <Button variant="outline" asChild className='mt-2'>
+        <Button variant="outline" asChild className="mt-2">
           <Link href="/">
             Home <Home />
           </Link>
@@ -28,7 +29,9 @@ const layout = async ({ children }: { children: ReactNode }) => {
       </div>
     )
   }
+
   const org = await getOrgById(user?.activeOrganizationId)
+
   return <AdminPanelLayout orgName={org?.name}>{children}</AdminPanelLayout>
 }
 

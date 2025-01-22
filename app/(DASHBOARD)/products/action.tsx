@@ -2,9 +2,10 @@
 'use server'
 import { getActiveOrg } from '@/lib/auth'
 import prisma from '@/prisma/db'
+import { revalidateTag, unstable_cache } from 'next/cache'
 
-export const getAllProductByOrganization = async (organizationId: string) => {
-  return await prisma.product.findMany({
+export const getAllProductByOrganization =unstable_cache( async (organizationId: string) => {
+  return  prisma.product.findMany({
     where: {
       organizationId: organizationId,
     },
@@ -26,7 +27,9 @@ export const getAllProductByOrganization = async (organizationId: string) => {
       },
     },
   })
-}
+},undefined,{
+  tags: ['product'],
+})
 
 export const getAllWarehouseByOrganization = async () => {
   const orgId = await getActiveOrg()
@@ -54,6 +57,7 @@ export const getAllWarehouseByOrganization = async () => {
 
 export const createProduct = async (data: any) => {
   const orgId = await getActiveOrg()
+  revalidateTag('product')
   await prisma.product.create({
     data: {
       name: data.name,
@@ -94,6 +98,7 @@ export const getProductById = async (id: string) => {
 
 export const updateProduct = async (id: string, data: any) => {
   const orgId = await getActiveOrg()
+  revalidateTag('product')
   await prisma.product.update({
     where: {
       id: id,

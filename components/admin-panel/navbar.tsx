@@ -3,19 +3,19 @@ import { SheetMenu } from '@/components/admin-panel/sheet-menu'
 import { UserNav } from '@/components/admin-panel/user-nav'
 import { getUser } from '@/lib/auth'
 import prisma from '@/prisma/db'
+import { unstable_cache } from 'next/cache'
 import { headers } from 'next/headers'
 
 interface NavbarProps {
   title: string
 }
 
-export async function Navbar({ title }: NavbarProps) {
-  const user = await getUser(headers)
-  const listOrganization = await prisma.organization.findMany({
+const getOrg = unstable_cache(async (id: string) => {
+  return prisma.organization.findMany({
     where: {
       members: {
         some: {
-          userId: user?.id,
+          userId: id,
         },
       },
     },
@@ -25,6 +25,11 @@ export async function Navbar({ title }: NavbarProps) {
       slug: true,
     },
   })
+})
+
+export async function Navbar({ title }: NavbarProps) {
+  const user = await getUser(headers)
+  const listOrganization = await getOrg(user?.id as string)
   return (
     <header className="sticky top-0 z-10 w-full bg-background/95 shadow backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:shadow-secondary">
       <div className="mx-2 sm:mx-8 flex h-14 items-center">

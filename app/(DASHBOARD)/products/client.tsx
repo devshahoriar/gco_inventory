@@ -43,7 +43,7 @@ export const AddProduct = () => {
   const [error, setError] = useState('')
   const { refresh } = useRouter()
   const [formData, setFormData] = useState(initialdata)
-
+  
   const { data, isLoading } = useSWR(
     () => (open ? 'getAllWarehouseByOrganization' : null),
     getAllWarehouseByOrganization
