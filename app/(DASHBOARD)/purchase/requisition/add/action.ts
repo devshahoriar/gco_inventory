@@ -3,9 +3,12 @@
 'use server'
 
 import { getActiveOrg, getUser } from '@/lib/auth'
+import { REQUISITION_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
 import { revalidateTag } from 'next/cache'
 import { headers } from 'next/headers'
+
+
 
 export const getProductGroup = async (text?: string, id?: string) => {
   const orgId = await getActiveOrg()
@@ -61,6 +64,7 @@ type DATA = {
 }
 
 export const saveRequisition = async (data: DATA) => {
+  revalidateTag(REQUISITION_TAG)
   try {
     const user = await getUser(headers)
 

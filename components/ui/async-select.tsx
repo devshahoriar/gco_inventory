@@ -99,6 +99,7 @@ export function AsyncSelect<T>({
   useEffect(() => {
     setMounted(true);
     setSelectedValue(value);
+  
   }, [value]);
 
   // Initialize selectedOption when options are loaded and value exists
@@ -108,6 +109,8 @@ export function AsyncSelect<T>({
       if (option) {
         setSelectedOption(option);
       }
+    }else{
+      setSelectedOption(null);
     }
   }, [value, options, getOptionValue]);
 
@@ -128,7 +131,7 @@ export function AsyncSelect<T>({
       }
     };
 
-    if (!mounted) {
+    if (!mounted && value) {
       initializeOptions();
     }
   }, [mounted, fetcher, value]);

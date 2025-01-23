@@ -1,7 +1,9 @@
 'use server'
 
+import { REQUISITION_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
 import { unstable_cache } from 'next/cache'
+
 
 export const countReq = unstable_cache(
   async (orgId: string) => {
@@ -13,7 +15,7 @@ export const countReq = unstable_cache(
   },
   undefined,
   {
-    tags: ['requisition'],
+    tags: [REQUISITION_TAG],
   }
 )
 
@@ -59,6 +61,6 @@ export const getAllReq = unstable_cache(
   },
   undefined,
   {
-    tags: ['requisition'],
+    tags: [REQUISITION_TAG],
   }
 )

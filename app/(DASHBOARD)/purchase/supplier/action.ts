@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
 
+import { SUPPLIER_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
 import { revalidateTag, unstable_cache } from 'next/cache'
+
+
 
 export const countSupplier = unstable_cache(
   async (organizationId: string) => {
@@ -14,7 +17,7 @@ export const countSupplier = unstable_cache(
   },
   undefined,
   {
-    tags: ['supplier'],
+    tags: [SUPPLIER_TAG],
   }
 )
 
@@ -31,12 +34,12 @@ export const getAllSupplier = unstable_cache(
   },
   undefined,
   {
-    tags: ['supplier'],
+    tags: [SUPPLIER_TAG],
   }
 )
 
 export const createSupplier = async (data: any) => {
-  revalidateTag('supplier')
+  revalidateTag(SUPPLIER_TAG)
   try {
     const supplier = await prisma.supplier.create({
       data: {
@@ -60,7 +63,7 @@ export const createSupplier = async (data: any) => {
 }
 
 export const updateSupplier = async (id: string, data: any) => {
-  revalidateTag('supplier')
+  revalidateTag(SUPPLIER_TAG)
   try {
     const supplier = await prisma.supplier.update({
       where: { id },
@@ -82,7 +85,7 @@ export const updateSupplier = async (id: string, data: any) => {
 }
 
 export const deleteSupplier = async (id: string) => {
-  revalidateTag('supplier')
+  revalidateTag(SUPPLIER_TAG)
   try {
     await prisma.supplier.delete({
       where: { id },

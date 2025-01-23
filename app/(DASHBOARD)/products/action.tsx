@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
 import { getActiveOrg } from '@/lib/auth'
+import { PRODUCT_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
 import { revalidateTag, unstable_cache } from 'next/cache'
+
+
 
 export const getAllProductByOrganization =unstable_cache( async (organizationId: string) => {
   return  prisma.product.findMany({
@@ -28,7 +31,7 @@ export const getAllProductByOrganization =unstable_cache( async (organizationId:
     },
   })
 },undefined,{
-  tags: ['product'],
+  tags: [PRODUCT_TAG],
 })
 
 export const getAllWarehouseByOrganization = async () => {

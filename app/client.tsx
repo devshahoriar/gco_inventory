@@ -81,7 +81,6 @@ export function NewOrganization() {
 }
 
 export function SelectOrg({ listOrganization, active }: any) {
-  const { refresh } = useRouter()
   const [loading, setLoading] = useState(false)
   const hendelChange = async (e: any) => {
     setLoading(true)
@@ -92,18 +91,22 @@ export function SelectOrg({ listOrganization, active }: any) {
       },
     })
     await setActiveOrg(e)
-    refresh()
+    window.location.reload()
     setLoading(false)
   }
   return (
-    <Select onValueChange={hendelChange} defaultValue={active}>
+    <Select
+      onValueChange={hendelChange}
+      defaultValue={active}
+      disabled={loading}
+    >
       <SelectTrigger className="w-full md:w-36">
         <SelectValue placeholder="Select Organization" />
       </SelectTrigger>
       <SelectContent>
         {listOrganization.map((org: any) => (
           <SelectItem key={org.id} value={org.id}>
-            <span className='flex items-center gap-4'>
+            <span className="flex items-center gap-4">
               {org.name}{' '}
               {loading && (
                 <Loader size={20} className="dark:text-white animate-spin" />

@@ -29,7 +29,7 @@ export default async function Home() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <Card className="w-[90%] max-w-md p-6 text-center">
           <CardHeader>
             <CardTitle className="text-2xl font-bold">

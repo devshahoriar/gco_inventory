@@ -1,31 +1,39 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
 
-import { getActiveOrg } from '@/lib/auth'
+import { REQUISITION_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
+import { revalidateTag, unstable_cache } from 'next/cache'
 
-export const getRequisition = async (id: string) => {
-  const orgId = await getActiveOrg()
-  return await prisma.requisition.findFirst({
-    where: {
-      id,
-      organizationId: orgId,
-    },
-    include: {
-      reqItems: {
-        include: {
-          product: {
-            include: {
-              productUnit: true,
+
+export const getRequisition = unstable_cache(
+  async (id: string, orgId: string) => {
+    return prisma.requisition.findFirst({
+      where: {
+        id,
+        organizationId: orgId,
+      },
+      include: {
+        reqItems: {
+          include: {
+            product: {
+              include: {
+                productUnit: true,
+              },
             },
           },
         },
       },
-    },
-  })
-}
+    })
+  },
+  undefined,
+  {
+    tags: [REQUISITION_TAG],
+  }
+)
 
 export const updateRequisition = async (id: string, data: any) => {
+  revalidateTag(REQUISITION_TAG)
   try {
     return await prisma.$transaction(async (tx) => {
       const requisition = await tx.requisition.update({

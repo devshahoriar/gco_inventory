@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
+import { PRODUCT_GROUP_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
 import { revalidateTag, unstable_cache } from 'next/cache'
+
+
 
 export const getProductGroupByOrgId = unstable_cache(
   async (orgId: string) => {
@@ -16,12 +19,12 @@ export const getProductGroupByOrgId = unstable_cache(
   },
   undefined,
   {
-    tags: ['productGroup'],
+    tags: [PRODUCT_GROUP_TAG],
   }
 )
 
 export const createProductGroup = async (data: any) => {
-  revalidateTag('productGroup')
+  revalidateTag(PRODUCT_GROUP_TAG)
   await prisma.productGroup.create({
     data: {
       name: data.name,
@@ -33,7 +36,7 @@ export const createProductGroup = async (data: any) => {
 }
 
 export const updateProductGroup = async (id: string, data: any) => {
-  revalidateTag('productGroup')
+  revalidateTag(PRODUCT_GROUP_TAG)
   await prisma.productGroup.update({
     where: { id },
     data: {

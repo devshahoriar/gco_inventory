@@ -1,21 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
+import { AsyncSelect } from '@/components/ui/async-select'
 import { Button } from '@/components/ui/button'
 import DateInput from '@/components/ui/DateInput'
 import { Input, InputParent } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Loader } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import useSWR from 'swr'
-import { getInitialData, getPreRequisition } from './action'
+import {
+  createOrder,
+  getBrancesForSelect,
+  getOrderNo,
+  getPreRequisition,
+  getRegesitionForSelect,
+  getSuppliersForSelect,
+  getWarehousesForSelect,
+} from './action'
 
 interface OrderItem {
   productId: string
@@ -71,6 +74,7 @@ const ProductInput = ({
             parseFloat(item?.rate || '0') * (item?.quantity || 0)
           ).toFixed(2)}
           disabled
+          className="disabled:opacity-90"
         />
       </div>
     </div>
@@ -106,14 +110,24 @@ const initialData = {
 }
 
 const AddOrder = () => {
-  const { data: list, isLoading: inLoading } = useSWR('reqIdNameCount', () =>
-    getInitialData()
-  )
   const [fromdata, setFormData] = useState<OrderForm>(initialData)
+  const [canOrder, setCanOrder] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const { data: regData, isLoading: reqLOading } = useSWR(
     fromdata?.regId ? 'pre' + fromdata.regId : null,
     () => getPreRequisition(fromdata.regId)
+  )
+
+  const { mutate, isLoading } = useSWR(
+    fromdata?.orderNo ? null : 'orderNo' + fromdata.orderNo,
+    () => getOrderNo(),
+    {
+      onSuccess: (data) => {
+        setFormData((prev) => ({ ...prev, orderNo: data }))
+      },
+    }
   )
 
   useEffect(() => {
@@ -149,211 +163,251 @@ const AddOrder = () => {
     })
   }
 
-  const hendelSubmit = () => {
-    // if (!fromdata.orderNo || !fromdata.supplierId || !fromdata.warehouseId) {
-    //   alert('Please fill all required fields')
-    //   return
-    // }
-    // if (fromdata.products.some((p) => p.price <= 0)) {
-    //   alert('Please enter price for all products')
-    //   return
-    // }
-    console.log(fromdata)
-    // TODO: Submit order
+  const hendelSubmit = async () => {
+    setError(null)
+    if (!fromdata.regId) {
+      setError('Please select regesition')
+      return
+    }
+    if (
+      !fromdata.orderNo ||
+      !fromdata.supplierId ||
+      !fromdata.warehouseId ||
+      !fromdata.branchId
+    ) {
+      setError('Please add order no, supplier, warehouse and branch.')
+      return
+    }
+    if (fromdata?.products?.length === 0) {
+      setError('Invalid products')
+      return
+    }
+    if (fromdata?.shippingAddress === '') {
+      setError('Please enter shipping address')
+      return
+    }
+    if (fromdata.products.some((p) => Number(p?.rate) <= 0)) {
+      setError('Please enter price for all products')
+      return
+    }
+    setLoading(true)
+    try {
+      await createOrder(fromdata)
+    } catch (error: any) {
+      setError(error?.message || 'Failed to add order')
+    }
+    setFormData(initialData)
+    setLoading(false)
+    toast.success('Order added successfully')
+    mutate()
   }
 
-  return (
-    <div className="max-w-4xl mx-auto p-2 space-y-2">
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label>Select Regesition</Label>
-          <Select
-            disabled={inLoading}
-            value={fromdata.regId}
-            onValueChange={(value) => {
-              setFormData(initialData)
-              handleChange('regId', value)
-            }}
-          >
-            <SelectTrigger className="">
-              <SelectValue placeholder="Select Requisition" />
-            </SelectTrigger>
-            <SelectContent>
-              {list?.regList?.map((req) => (
-                <SelectItem value={req.id} key={req.id}>
-                  {req.regNumber} · {req._count.reqItems} Items
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+  if (canOrder) {
+    return (
+      <div className="max-w-4xl mx-auto p-2 space-y-2">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Select Regesition</Label>
 
-        <div className="space-y-2">
-          <Label>Reqesition Date</Label>
-          <Input
-            type="date"
-            onChange={(e) => e.preventDefault()}
-            value={fromdata.regDate && new Date()?.toISOString().split('T')[0]}
-            disabled
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Order No</Label>
-          <Input
-            type="text"
-            placeholder="eng: order-1"
-            value={fromdata.orderNo}
-            onChange={(e) => handleChange('orderNo', e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Order Date</Label>
-          <DateInput
-            className="block w-full"
-            value={
-              fromdata.orderDate ? new Date(fromdata.orderDate) : new Date()
-            }
-            onChange={(date) =>
-              handleChange('orderDate', date?.toISOString() || '')
-            }
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Deu Date</Label>
-          <DateInput
-            className="block w-full"
-            value={fromdata.deuDate ? new Date(fromdata.deuDate) : new Date()}
-            onChange={(date) =>
-              handleChange('deuDate', date?.toISOString() || '')
-            }
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Select Branch</Label>
-          <Select
-            disabled={inLoading}
-            value={fromdata.branchId}
-            onValueChange={(value) => handleChange('branchId', value)}
-          >
-            <SelectTrigger className="">
-              <SelectValue placeholder="Select Brance" />
-            </SelectTrigger>
-            <SelectContent>
-              {list?.branchList?.map((branch) => (
-                <SelectItem value={branch.id} key={branch.id}>
-                  {branch.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Select Warehouse</Label>
-          <Select
-            disabled={inLoading}
-            value={fromdata.warehouseId}
-            onValueChange={(value) => handleChange('warehouseId', value)}
-          >
-            <SelectTrigger className="">
-              <SelectValue placeholder="Select" />
-            </SelectTrigger>
-            <SelectContent>
-              {list?.wareHouseList?.map((ware) => (
-                <SelectItem value={ware.id} key={ware.id}>
-                  {ware.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Select Supllayers</Label>
-          <Select
-            disabled={inLoading}
-            value={fromdata.supplierId}
-            onValueChange={(value) => handleChange('supplierId', value)}
-          >
-            <SelectTrigger className="">
-              <SelectValue placeholder="Select" />
-            </SelectTrigger>
-            <SelectContent>
-              {list?.supliyaerList?.map((sup) => (
-                <SelectItem value={sup.id} key={sup.id}>
-                  {sup.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Supping Address</Label>
-        <Input
-          type="text"
-          placeholder="Address"
-          value={fromdata.shippingAddress}
-          onChange={(e) => handleChange('shippingAddress', e.target.value)}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label>Remark</Label>
-        <Input
-          type="text"
-          placeholder="Remark"
-          value={fromdata.remark}
-          onChange={(e) => handleChange('remark', e.target.value)}
-        />
-      </div>
-
-      {reqLOading && (
-        <div className="h-28 flex justify-center items-center">
-          <Loader className="animate-spin" size={32} />
-        </div>
-      )}
-
-      {fromdata.products.length > 0 && (
-        <>
-          <div className="space-y-3 !mt-5">
-            <Label className="flex gap-2 items-center justify-center border-b pb-2 text-xl">
-              Products
-            </Label>
-            <div className="space-y-3">
-              {fromdata.products.map((item, index) => (
-                <ProductInput
-                  key={`${item.productId}-${index}`}
-                  item={item}
-                  onChangePrice={(value) => updateProductPrice(index, value)}
-                />
-              ))}
-            </div>
+            <AsyncSelect
+              fetcher={async (v) => {
+                const x = await getRegesitionForSelect(v, fromdata.regId)
+                if (x.length === 0) {
+                  setError('No regesition found')
+                  setCanOrder(false)
+                } else {
+                  setError(null)
+                  setCanOrder(true)
+                }
+                return x
+              }}
+              renderOption={(item) => (
+                <div>
+                  {item.regNumber} · {item._count.reqItems} Items
+                </div>
+              )}
+              getOptionValue={(item) => item.id}
+              getDisplayValue={(item) =>
+                `${item.regNumber} · ${item._count.reqItems} Items`
+              }
+              label="Regesition"
+              placeholder="Regesition"
+              value={fromdata.regId}
+              onChange={(v) => {
+                setFormData({ ...initialData, orderNo: fromdata.orderNo })
+                handleChange('regId', v)
+              }}
+            />
           </div>
-          <div>
-            <Label>Total</Label>
+
+          <div className="space-y-2">
+            <Label>Reqesition Date</Label>
             <Input
-              type="text"
-              value={fromdata.products
-                .reduce(
-                  (acc, item) =>
-                    acc + parseFloat(item.rate || '0') * item.quantity,
-                  0
-                )
-                .toFixed(2)}
+              type="date"
+              onChange={(e) => e.preventDefault()}
+              value={
+                fromdata.regDate && new Date()?.toISOString().split('T')[0]
+              }
               disabled
             />
           </div>
-        </>
-      )}
 
-      <div className="!mt-10">
-        <Button onClick={hendelSubmit} className="w-full">
-          Submit Order
-        </Button>
+          <div className="space-y-2">
+            <Label>Order No</Label>
+            <Input
+              disabled={isLoading}
+              type="text"
+              placeholder="eng: order-1"
+              value={fromdata.orderNo}
+              onChange={(e) => handleChange('orderNo', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Order Date</Label>
+            <DateInput
+              className="block w-full"
+              value={
+                fromdata.orderDate ? new Date(fromdata.orderDate) : new Date()
+              }
+              onChange={(date) =>
+                handleChange('orderDate', date?.toISOString() || '')
+              }
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Deu Date</Label>
+            <DateInput
+              className="block w-full"
+              value={fromdata.deuDate ? new Date(fromdata.deuDate) : new Date()}
+              onChange={(date) =>
+                handleChange('deuDate', date?.toISOString() || '')
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Select Branch</Label>
+
+            <AsyncSelect
+              fetcher={(v) => getBrancesForSelect(v, fromdata.branchId)}
+              renderOption={(item) => <>{item.name}</>}
+              getOptionValue={(item) => item.id}
+              getDisplayValue={(item) => item.name}
+              label="Branch"
+              placeholder="Branch"
+              value={fromdata.branchId}
+              onChange={(value) => handleChange('branchId', value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Select Warehouse</Label>
+
+            <AsyncSelect
+              fetcher={(v) => getWarehousesForSelect(v, fromdata.warehouseId)}
+              renderOption={(item) => <>{item.name}</>}
+              getOptionValue={(item) => item.id}
+              getDisplayValue={(item) => item.name}
+              label="Branch"
+              placeholder="Branch"
+              value={fromdata.warehouseId}
+              onChange={(value) => handleChange('warehouseId', value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Select Supllayers</Label>
+            <AsyncSelect
+              fetcher={(v) => getSuppliersForSelect(v, fromdata.supplierId)}
+              renderOption={(item) => <>{item.name}</>}
+              getOptionValue={(item) => item.id}
+              getDisplayValue={(item) => item.name}
+              label="Supllayers"
+              placeholder="Supllayers"
+              value={fromdata.supplierId}
+              onChange={(value) => handleChange('supplierId', value)}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Supping Address</Label>
+          <Input
+            type="text"
+            placeholder="Address"
+            value={fromdata.shippingAddress}
+            onChange={(e) => handleChange('shippingAddress', e.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Remark</Label>
+          <Input
+            type="text"
+            placeholder="Remark"
+            value={fromdata.remark}
+            onChange={(e) => handleChange('remark', e.target.value)}
+          />
+        </div>
+
+        {reqLOading && (
+          <div className="h-28 flex justify-center items-center">
+            <Loader className="animate-spin" size={32} />
+          </div>
+        )}
+
+        {fromdata.products.length > 0 && (
+          <>
+            <div className="space-y-3 !mt-5">
+              <Label className="flex gap-2 items-center justify-center border-b pb-2 text-xl">
+                Products
+              </Label>
+              <div className="space-y-3">
+                {fromdata.products.map((item, index) => (
+                  <ProductInput
+                    key={`${item.productId}-${index}`}
+                    item={item}
+                    onChangePrice={(value) => updateProductPrice(index, value)}
+                  />
+                ))}
+              </div>
+            </div>
+            <div>
+              <Label className="text-3xl">
+                Total - {fromdata?.products?.length} items ·{' '}
+                {fromdata?.products?.reduce(
+                  (acc, item) =>
+                    acc + Number(item?.quantity) * Number(item?.rate),
+                  0
+                )}{' '}
+                taka.
+              </Label>
+            </div>
+          </>
+        )}
+
+        <div className="!mt-5">
+          {error && <div className="text-red-500  p-2">{error}</div>}
+          <Button onClick={hendelSubmit} className="w-full" disabled={loading}>
+            Submit Order
+          </Button>
+        </div>
       </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center h-[80vh]">
+      <h1 className="text-center mt-5 w-[90%] text-2xl">
+        You can not order without adding Requisition to you organization. Please
+        add Reqesition.
+      </h1>
+      <Button
+        className="mt-5"
+        variant="outline"
+        onClick={() => window.location.reload()}
+      >
+        Refresh
+      </Button>
     </div>
   )
 }

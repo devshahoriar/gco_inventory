@@ -135,6 +135,9 @@ export const getActiveOrg = async () => {
     const user = await getUser(headers)
     orgId = user?.activeOrganizationId
   }
+  if (!orgId) {
+    throw new Error('No active organization found')
+  }
   return orgId as string
 }
 
