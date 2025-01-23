@@ -31,6 +31,7 @@ export const getAllReq = unstable_cache(
         naration: true,
         regNumber: true,
         reqDate: true,
+        isOrdered: true,
         creator: {
           select: {
             name: true,

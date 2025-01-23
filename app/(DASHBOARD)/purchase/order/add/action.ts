@@ -90,7 +90,7 @@ export const getOrderNo = async () => {
       orgId: orgId,
     },
   })
-  return "Order-"+orderCount + 1
+  return 'Order-' + orderCount + 1
 }
 
 // ⬆️⬆️⬆️  other data for select ⬆️⬆️⬆️
@@ -133,7 +133,12 @@ export const createOrder = async (data: any) => {
     const orgId = await getActiveOrg()
 
     // Validate required fields
-    if (!data.orderNo || !data.supplierId || !data.warehouseId || !data.branchId) {
+    if (
+      !data.orderNo ||
+      !data.supplierId ||
+      !data.warehouseId ||
+      !data.branchId
+    ) {
       throw new Error('Missing required fields')
     }
 
@@ -150,9 +155,9 @@ export const createOrder = async (data: any) => {
     // Check if order number already exists
     const existingOrder = await prisma.order.findUnique({
       where: { orderNo: data.orderNo },
-      select:{
-        id: true
-      }
+      select: {
+        id: true,
+      },
     })
 
     if (existingOrder) {
@@ -161,58 +166,64 @@ export const createOrder = async (data: any) => {
 
     // Create order with items in a transaction
     revalidateTag(ORDER_TAG)
-    const result = await prisma.$transaction(async (tx) => {
-      // Create the order
-      const order = await tx.order.create({
-        data: {
-          orderNo: data.orderNo,
-          orderDate: new Date(data.orderDate),
-          dueDate: new Date(data.deuDate),
-          orgId: orgId,
-          branceId: data.branchId,
-          warehouseId: data.warehouseId,
-          supplierId: data.supplierId,
-          supingAddress: data.shippingAddress,
-          remarks: data.remark,
-        },
-        select:{
-          id: true
-        }
-      })
-
-      // Create order items
-      const orderItems = await Promise.all(
-        data.products.map((product: any) =>
-          tx.orderItems.create({
-            data: {
-              orderId: order.id,
-              productId: product.productId,
-              quantity: product.quantity,
-              price: parseFloat(product.rate),
-            },
-            select:{
-              id: true
-            }
-          })
-        )
-      )
-
-      // Update requisition status if reqId exists
-      if (data.regId) {
-        await tx.requisition.update({
-          where: { id: data.regId },
-          data: { isOrdered: true },
-          select:{
-            id: true
-          }
+    const result = await prisma.$transaction(
+      async (tx) => {
+        // Create the order
+        const order = await tx.order.create({
+          data: {
+            orderNo: data.orderNo,
+            orderDate: new Date(data.orderDate),
+            dueDate: new Date(data.deuDate),
+            orgId: orgId,
+            branceId: data.branchId,
+            warehouseId: data.warehouseId,
+            supplierId: data.supplierId,
+            supingAddress: data.shippingAddress,
+            remarks: data.remark,
+          },
+          select: {
+            id: true,
+          },
         })
-      }
 
-      return { order, orderItems }
-    })
+        // Create order items
+        const orderItems = await Promise.all(
+          data.products.map((product: any) =>
+            tx.orderItems.create({
+              data: {
+                orderId: order.id,
+                productId: product.productId,
+                quantity: product.quantity,
+                price: parseFloat(product.rate),
+              },
+              select: {
+                id: true,
+              },
+            })
+          )
+        )
+
+        // Update requisition status if reqId exists
+        if (data.regId) {
+          await tx.requisition.update({
+            where: { id: data.regId },
+            data: { isOrdered: true },
+            select: {
+              id: true,
+            },
+          })
+        }
+
+        return { order, orderItems }
+      },
+      {
+        maxWait: 5000,
+        timeout: 10000,
+        
+      }
+    )
 
     return result
-
   } catch (error: any) {
     if (error.code === 'P2002') {
       throw new Error('Duplicate order number')

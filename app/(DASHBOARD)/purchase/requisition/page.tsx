@@ -31,7 +31,7 @@ const RequisitionPage = async () => {
           </Link>
         </Button>
       </PageTopBar>
-      
+
       <div className="mt-4">
         <Table>
           <TableHeader>
@@ -47,9 +47,20 @@ const RequisitionPage = async () => {
           <TableBody>
             {getAllreqs.map((req) => (
               <TableRow key={req.id}>
-                <TableCell>{req.regNumber}</TableCell>
-                <TableCell className='capitalize'>{req?.creator?.name}</TableCell>
-                <TableCell>{format(new Date(req.reqDate), 'dd/MM/yyyy')}</TableCell>
+                <TableCell>
+                  {req.regNumber}
+                  {req?.isOrdered && (
+                    <span className="ml-3 bg-green-500 bg-opacity-50 text-xs px-2 py-1 rounded-sm">
+                      Ordered
+                    </span>
+                  )}
+                </TableCell>
+                <TableCell className="capitalize">
+                  {req?.creator?.name}
+                </TableCell>
+                <TableCell>
+                  {format(new Date(req.reqDate), 'dd/MM/yyyy')}
+                </TableCell>
                 <TableCell>
                   {req.reqItems.map((item) => (
                     <div key={item.id}>
