@@ -153,7 +153,7 @@ export const createOrder = async (data: any) => {
     }
 
     // Check if order number already exists
-    const existingOrder = await prisma.order.findUnique({
+    const existingOrder = await prisma.order.findFirst({
       where: { orderNo: data.orderNo },
       select: {
         id: true,

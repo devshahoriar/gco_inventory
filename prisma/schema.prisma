@@ -269,7 +269,7 @@ model Branch {
 
 model Requisition {
   id             String       @id @default(cuid())
-  regNumber      String       
+  regNumber      String
   reqDate        DateTime
   naration       String?      @db.Text
   reqItems       ReqItems[]
@@ -297,7 +297,7 @@ model ReqItems {
 
 model Order {
   id            String       @id @default(cuid())
-  orderNo       String       
+  orderNo       String
   orderDate     DateTime
   dueDate       DateTime
   orgId         String
@@ -311,7 +311,8 @@ model Order {
   supingAddress String
   remarks       String?
   OrderItems    OrderItems[]
-  Challan       Challan[]
+
+  Challan Challan?
 }
 
 model OrderItems {
@@ -328,9 +329,9 @@ model OrderItems {
 
 model Challan {
   id             String   @id @default(cuid())
-  orderId        String
+  orderId        String   @unique
   Order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  challanNo      String   
+  challanNo      String
   challanDate    DateTime
   challanDueDate DateTime
 
