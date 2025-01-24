@@ -4,17 +4,26 @@
 import { AsyncSelect } from '@/components/ui/async-select'
 import { Button } from '@/components/ui/button'
 import DateInput from '@/components/ui/DateInput'
-import { Input, InputParent } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { toast } from 'sonner'
 import {
   getBrancesForSelect,
   getSuppliersForSelect,
   getWarehousesForSelect,
 } from '../../add/action'
-import {  useState } from 'react'
-import { toast } from 'sonner'
 import { updateOrder } from './action'
-import { useRouter } from 'next/navigation'
 
 interface OrderItem {
   productId: string
@@ -34,47 +43,23 @@ const ProductInput = ({
   item: OrderItem
   onChangePrice: (value: string) => void
 }) => (
-  <div className="space-y-2 border p-4 rounded-md">
-    <div className="mt-4 grid md:grid-cols-5 sm:grid-cols-2 grid-cols-1 gap-2">
-      <InputParent
-        labelTitle="Group"
-        disabled
-        value={item?.groupName || ''}
-        className="disabled:opacity-90"
-      />
-      <InputParent
-        labelTitle="Name"
-        disabled
-        value={item?.productName || ''}
-        className="disabled:opacity-90"
-      />
-      <InputParent
-        labelTitle={`Quantity (${item?.unit})`}
-        type="number"
-        value={item?.quantity || 0}
-        disabled
-        className="disabled:opacity-90"
-      />
-      <InputParent
-        labelTitle="Rate"
+  <TableRow>
+    <TableCell>{item.groupName}</TableCell>
+    <TableCell>{item.productName}</TableCell>
+    <TableCell className="text-right">{item.quantity} {item.unit}</TableCell>
+    <TableCell>
+      <Input
         type="text"
         placeholder="0.00"
-        value={item?.rate ?? ''}
+        value={item.rate ?? ''}
         onChange={(e) => onChangePrice(e.target.value)}
+        className="w-full"
       />
-      <div>
-        <Label>Total Amount</Label>
-        <Input
-          type="text"
-          value={(
-            parseFloat(item?.rate || '0') * (item?.quantity || 0)
-          ).toFixed(2)}
-          disabled
-          className="disabled:opacity-90"
-        />
-      </div>
-    </div>
-  </div>
+    </TableCell>
+    <TableCell className="text-right">
+      {(parseFloat(item.rate || '0') * (item.quantity || 0)).toFixed(2)}
+    </TableCell>
+  </TableRow>
 )
 
 const EditOrder = ({ initialData }: { initialData: any }) => {
@@ -236,26 +221,41 @@ const EditOrder = ({ initialData }: { initialData: any }) => {
         <Label className="flex gap-2 items-center justify-center border-b pb-2 text-xl">
           Products
         </Label>
-        <div className="space-y-3">
-          {formData.products.map((item:any, index:number) => (
-            <ProductInput
-              key={`${item.productId}-${index}`}
-              item={item}
-              onChangePrice={(value) => updateProductPrice(index, value)}
-            />
-          ))}
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Group</TableHead>
+                <TableHead>Product</TableHead>
+                <TableHead className="text-right">Quantity</TableHead>
+                <TableHead>Rate</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {formData.products.map((item:any, index:number) => (
+                <ProductInput
+                  key={`${item.productId}-${index}`}
+                  item={item}
+                  onChangePrice={(value) => updateProductPrice(index, value)}
+                />
+              ))}
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={2}>
+                  Total Items: {formData.products.length}
+                </TableCell>
+                <TableCell colSpan={3} className="text-right">
+                  Total Amount: {formData.products.reduce(
+                    (acc:any, item:any) => acc + Number(item.quantity) * Number(item.rate),
+                    0
+                  ).toFixed(2)} taka
+                </TableCell>
+              </TableRow>
+            </TableFooter>
+          </Table>
         </div>
-      </div>
-
-      <div>
-        <Label className="text-3xl">
-          Total - {formData?.products?.length} items ·{' '}
-          {formData?.products?.reduce(
-            (acc:any, item:any) => acc + Number(item?.quantity) * Number(item?.rate),
-            0
-          )}{' '}
-          taka.
-        </Label>
       </div>
 
       <div className="!mt-5">

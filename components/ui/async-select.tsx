@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
-import { useDebounce } from "@/hooks/use-debounce";
+import { useState, useEffect, useCallback } from 'react'
+import { Check, ChevronsUpDown, Loader2 } from 'lucide-react'
+import { useDebounce } from '@/hooks/use-debounce'
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import {
   Command,
   CommandEmpty,
@@ -11,58 +11,58 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
+} from '@/components/ui/command'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from '@/components/ui/popover'
 
 export interface Option {
-  value: string;
-  label: string;
-  disabled?: boolean;
-  description?: string;
-  icon?: React.ReactNode;
+  value: string
+  label: string
+  disabled?: boolean
+  description?: string
+  icon?: React.ReactNode
 }
 
 export interface AsyncSelectProps<T> {
   /** Async function to fetch options */
-  fetcher: (query?: string) => Promise<T[]> | T[];
+  fetcher: (query?: string) => Promise<T[]> | T[]
   /** Preload all data ahead of time */
-  preload?: boolean;
+  preload?: boolean
   /** Function to filter options */
-  filterFn?: (option: T, query: string) => boolean;
+  filterFn?: (option: T, query: string) => boolean
   /** Function to render each option */
-  renderOption: (option: T) => React.ReactNode;
+  renderOption: (option: T) => React.ReactNode
   /** Function to get the value from an option */
-  getOptionValue: (option: T) => string;
+  getOptionValue: (option: T) => string
   /** Function to get the display value for the selected option */
-  getDisplayValue: (option: T) => React.ReactNode;
+  getDisplayValue: (option: T) => React.ReactNode
   /** Custom not found message */
-  notFound?: React.ReactNode;
+  notFound?: React.ReactNode
   /** Custom loading skeleton */
-  loadingSkeleton?: React.ReactNode;
+  loadingSkeleton?: React.ReactNode
   /** Currently selected value */
-  value: string;
+  value: string
   /** Callback when selection changes */
-  onChange: (value: string,options?:T[]) => void;
+  onChange: (value: string, options?: T[]) => void
   /** Label for the select field */
-  label: string;
+  label?: string
   /** Placeholder text when no selection */
-  placeholder?: string;
+  placeholder?: string
   /** Disable the entire select */
-  disabled?: boolean;
+  disabled?: boolean
   /** Custom width for the popover */
-  width?: string | number;
+  width?: string | number
   /** Custom class names */
-  className?: string;
+  className?: string
   /** Custom trigger button class names */
-  triggerClassName?: string;
+  triggerClassName?: string
   /** Custom no results message */
-  noResultsMessage?: string;
+  noResultsMessage?: string
   /** Allow clearing the selection */
-  clearable?: boolean;
+  clearable?: boolean
 }
 
 export function AsyncSelect<T>({
@@ -75,102 +75,111 @@ export function AsyncSelect<T>({
   notFound,
   loadingSkeleton,
   label,
-  placeholder = "Select...",
+  placeholder = 'Select...',
   value,
   onChange,
   disabled = false,
-  width = "100%",
+  width = '100%',
   className,
   triggerClassName,
   noResultsMessage,
   clearable = true,
 }: AsyncSelectProps<T>) {
-  const [mounted, setMounted] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [options, setOptions] = useState<T[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedValue, setSelectedValue] = useState(value);
-  const [selectedOption, setSelectedOption] = useState<T | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTerm, preload ? 0 : 300);
-  const [originalOptions, setOriginalOptions] = useState<T[]>([]);
+  const [mounted, setMounted] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [options, setOptions] = useState<T[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedValue, setSelectedValue] = useState(value)
+  const [selectedOption, setSelectedOption] = useState<T | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearchTerm = useDebounce(searchTerm, preload ? 0 : 300)
+  const [originalOptions, setOriginalOptions] = useState<T[]>([])
 
   useEffect(() => {
-    setMounted(true);
-    setSelectedValue(value);
-  
-  }, [value]);
+    setMounted(true)
+    setSelectedValue(value)
+  }, [value])
 
   // Initialize selectedOption when options are loaded and value exists
   useEffect(() => {
     if (value && options.length > 0) {
-      const option = options.find(opt => getOptionValue(opt) === value);
+      const option = options.find((opt) => getOptionValue(opt) === value)
       if (option) {
-        setSelectedOption(option);
+        setSelectedOption(option)
       }
-    }else{
-      setSelectedOption(null);
+    } else {
+      setSelectedOption(null)
     }
-  }, [value, options, getOptionValue]);
+  }, [value, options, getOptionValue])
 
   // Effect for initial fetch
   useEffect(() => {
     const initializeOptions = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        setLoading(true)
+        setError(null)
         // If we have a value, use it for the initial search
-        const data = await fetcher(value);
-        setOriginalOptions(data);
-        setOptions(data);
+        const data = await fetcher(value)
+        setOriginalOptions(data)
+        setOptions(data)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch options');
+        setError(err instanceof Error ? err.message : 'Failed to fetch options')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
     if (!mounted && value) {
-      initializeOptions();
+      initializeOptions()
     }
-  }, [mounted, fetcher, value]);
+  }, [mounted, fetcher, value])
 
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        setLoading(true);
-        setError(null);
-        const data = await fetcher(debouncedSearchTerm);
-        setOriginalOptions(data);
-        setOptions(data);
+        setLoading(true)
+        setError(null)
+        const data = await fetcher(debouncedSearchTerm)
+        setOriginalOptions(data)
+        setOptions(data)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch options');
+        setError(err instanceof Error ? err.message : 'Failed to fetch options')
       } finally {
-        setLoading(false);
-      }
-    };
-
-    if (!mounted) {
-      fetchOptions();
-    } else if (!preload) {
-      fetchOptions();
-    } else if (preload) {
-      if (debouncedSearchTerm) {
-        setOptions(originalOptions.filter((option) => filterFn ? filterFn(option, debouncedSearchTerm) : true));
-      } else {
-        setOptions(originalOptions);
+        setLoading(false)
       }
     }
-  }, [fetcher, debouncedSearchTerm, mounted, preload, filterFn]);
 
-  const handleSelect = useCallback((currentValue: string) => {
-    const newValue = clearable && currentValue === selectedValue ? "" : currentValue;
-    setSelectedValue(newValue);
-    setSelectedOption(options.find((option) => getOptionValue(option) === newValue) || null);
-    onChange(newValue,options);
-    setOpen(false);
-  }, [selectedValue, onChange, clearable, options, getOptionValue]);
+    if (!mounted) {
+      fetchOptions()
+    } else if (!preload) {
+      fetchOptions()
+    } else if (preload) {
+      if (debouncedSearchTerm) {
+        setOptions(
+          originalOptions.filter((option) =>
+            filterFn ? filterFn(option, debouncedSearchTerm) : true
+          )
+        )
+      } else {
+        setOptions(originalOptions)
+      }
+    }
+  }, [fetcher, debouncedSearchTerm, mounted, preload, filterFn])
+
+  const handleSelect = useCallback(
+    (currentValue: string) => {
+      const newValue =
+        clearable && currentValue === selectedValue ? '' : currentValue
+      setSelectedValue(newValue)
+      setSelectedOption(
+        options.find((option) => getOptionValue(option) === newValue) || null
+      )
+      onChange(newValue, options)
+      setOpen(false)
+    },
+    [selectedValue, onChange, clearable, options, getOptionValue]
+  )
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -180,29 +189,25 @@ export function AsyncSelect<T>({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "justify-between !bg-transparent",
-            disabled && "opacity-50 cursor-not-allowed",
+            'justify-between !bg-transparent',
+            disabled && 'opacity-50 cursor-not-allowed',
             triggerClassName
           )}
           style={{ width: width }}
           disabled={disabled}
         >
-          {selectedOption ? (
-            getDisplayValue(selectedOption)
-          ) : (
-            placeholder
-          )}
+          {selectedOption ? getDisplayValue(selectedOption) : placeholder}
           <ChevronsUpDown className="opacity-50" size={10} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent style={{ width: width }} className={cn("p-0", className)}>
+      <PopoverContent style={{ width: width }} className={cn('p-0', className)}>
         <Command shouldFilter={false}>
           <div className="relative border-b w-full">
             <CommandInput
-              placeholder={`Search ${label.toLowerCase()}...`}
+              placeholder={`Search ${label && label.toLowerCase()}...`}
               value={searchTerm}
               onValueChange={(value) => {
-                setSearchTerm(value);
+                setSearchTerm(value)
               }}
             />
             {loading && options.length > 0 && (
@@ -213,16 +218,20 @@ export function AsyncSelect<T>({
           </div>
           <CommandList>
             {error && (
-              <div className="p-4 text-destructive text-center">
-                {error}
-              </div>
+              <div className="p-4 text-destructive text-center">{error}</div>
             )}
-            {loading && options.length === 0 && (
-              loadingSkeleton || <DefaultLoadingSkeleton />
-            )}
-            {!loading && !error && options.length === 0 && (
-              notFound || <CommandEmpty>{noResultsMessage ?? `No ${label.toLowerCase()} found.`}</CommandEmpty>
-            )}
+            {loading &&
+              options.length === 0 &&
+              (loadingSkeleton || <DefaultLoadingSkeleton />)}
+            {!loading &&
+              !error &&
+              options.length === 0 &&
+              (notFound || (
+                <CommandEmpty>
+                  {noResultsMessage ??
+                    `No ${label ? label.toLowerCase() : 'item'} found.`}
+                </CommandEmpty>
+              ))}
             <CommandGroup>
               {options.map((option) => (
                 <CommandItem
@@ -233,8 +242,10 @@ export function AsyncSelect<T>({
                   {renderOption(option)}
                   <Check
                     className={cn(
-                      "ml-auto h-3 w-3",
-                      selectedValue === getOptionValue(option) ? "opacity-100" : "opacity-0"
+                      'ml-auto h-3 w-3',
+                      selectedValue === getOptionValue(option)
+                        ? 'opacity-100'
+                        : 'opacity-0'
                     )}
                   />
                 </CommandItem>
@@ -244,7 +255,7 @@ export function AsyncSelect<T>({
         </Command>
       </PopoverContent>
     </Popover>
-  );
+  )
 }
 
 function DefaultLoadingSkeleton() {
@@ -262,5 +273,5 @@ function DefaultLoadingSkeleton() {
         </CommandItem>
       ))}
     </CommandGroup>
-  );
+  )
 }

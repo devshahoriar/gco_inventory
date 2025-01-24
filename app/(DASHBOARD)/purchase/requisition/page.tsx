@@ -70,11 +70,13 @@ const RequisitionPage = async () => {
                 </TableCell>
                 <TableCell>{req.naration}</TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link href={`/purchase/requisition/edit/${req.id}`}>
-                      Edit
-                    </Link>
-                  </Button>
+                  {!req.isOrdered && (
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href={`/purchase/requisition/edit/${req.id}`}>
+                        Edit
+                      </Link>
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

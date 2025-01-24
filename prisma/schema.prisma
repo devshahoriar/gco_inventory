@@ -98,6 +98,7 @@ model Organization {
   Requisition Requisition[]
   Order       Order[]
   Branch      Branch[]
+  Challan     Challan[]
 
   @@map("organization")
 }
@@ -141,6 +142,7 @@ model Warehouse {
   Return         Return[]
   active         Boolean      @default(true)
   Order          Order[]
+  Challan        Challan[]
 
   @@map("warehouse")
 }
@@ -153,21 +155,22 @@ model ProductImage {
 }
 
 model Product {
-  id             String        @id @default(cuid())
-  name           String        @db.VarChar(255)
-  description    String?       @db.VarChar(255)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id             String         @id @default(cuid())
+  name           String         @db.VarChar(255)
+  description    String?        @db.VarChar(255)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
   organizationId String
   productImageId String?
   productGroupId String
   productUnitId  String
-  productUnit    ProductUnit   @relation(fields: [productUnitId], references: [id])
-  ProductGroup   ProductGroup  @relation(fields: [productGroupId], references: [id])
-  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  ProductImage   ProductImage? @relation(fields: [productImageId], references: [id])
+  productUnit    ProductUnit    @relation(fields: [productUnitId], references: [id])
+  ProductGroup   ProductGroup   @relation(fields: [productGroupId], references: [id])
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  ProductImage   ProductImage?  @relation(fields: [productImageId], references: [id])
   ReqItems       ReqItems[]
   OrderItems     OrderItems[]
+  ChallanItems   ChallanItems[]
 
   @@map("product")
 }
@@ -185,6 +188,7 @@ model Supplier {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
   Order          Order[]
+  Challan        Challan[]
 
   @@map("supplier")
 }
@@ -258,6 +262,7 @@ model Branch {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   Order          Order[]
+  Challan        Challan[]
 
   @@map("branch")
 }
@@ -306,10 +311,11 @@ model Order {
   supingAddress String
   remarks       String?
   OrderItems    OrderItems[]
+  Challan       Challan[]
 }
 
 model OrderItems {
-  id       String  @id @default(cuid())
+  id       String @id @default(cuid())
   quantity Int
   price    Float
 
@@ -318,4 +324,38 @@ model OrderItems {
 
   product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   Order   Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+}
+
+model Challan {
+  id             String   @id @default(cuid())
+  orderId        String
+  Order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  challanNo      String   @unique
+  challanDate    DateTime
+  challanDueDate DateTime
+
+  orgId         String
+  Organization  Organization   @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  branceId      String?
+  Branch        Branch?        @relation(fields: [branceId], references: [id], onDelete: SetNull)
+  warehouseId   String?
+  Warehouse     Warehouse?     @relation(fields: [warehouseId], references: [id], onDelete: SetNull)
+  supplierId    String?
+  Supplier      Supplier?      @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  supingAddress String
+  remarks       String?
+  ChallanItems  ChallanItems[]
+}
+
+model ChallanItems {
+  id          String  @id @default(cuid())
+  quantity    Int
+  rate        Float
+  batch       String
+  description String
+  productId   String?
+
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  Challan   Challan? @relation(fields: [challanId], references: [id], onDelete: Cascade)
+  challanId String?
 }

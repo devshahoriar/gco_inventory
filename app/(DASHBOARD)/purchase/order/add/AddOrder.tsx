@@ -4,8 +4,17 @@
 import { AsyncSelect } from '@/components/ui/async-select'
 import { Button } from '@/components/ui/button'
 import DateInput from '@/components/ui/DateInput'
-import { Input, InputParent } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { Loader } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -38,47 +47,25 @@ const ProductInput = ({
   item: OrderItem
   onChangePrice: (value: string) => void
 }) => (
-  <div className="space-y-2 border p-4 rounded-md">
-    <div className="mt-4 grid md:grid-cols-5 sm:grid-cols-2 grid-cols-1 gap-2">
-      <InputParent
-        labelTitle="Group"
-        disabled
-        value={item?.groupName || ''}
-        className="disabled:opacity-90"
-      />
-      <InputParent
-        labelTitle="Name"
-        disabled
-        value={item?.productName || ''}
-        className="disabled:opacity-90"
-      />
-      <InputParent
-        labelTitle={`Quantity (${item?.unit})`}
-        type="number"
-        value={item?.quantity || 0}
-        disabled
-        className="disabled:opacity-90"
-      />
-      <InputParent
-        labelTitle="Rate"
+  <TableRow>
+    <TableCell>{item.groupName}</TableCell>
+    <TableCell>{item.productName}</TableCell>
+    <TableCell className="text-right">
+      {item.quantity} {item.unit}
+    </TableCell>
+    <TableCell>
+      <Input
         type="text"
         placeholder="0.00"
-        value={item?.rate ?? ''} // Ensure value is never undefined
+        value={item.rate ?? ''}
         onChange={(e) => onChangePrice(e.target.value)}
+        className="w-full"
       />
-      <div>
-        <Label>Total Ammount</Label>
-        <Input
-          type="text"
-          value={(
-            parseFloat(item?.rate || '0') * (item?.quantity || 0)
-          ).toFixed(2)}
-          disabled
-          className="disabled:opacity-90"
-        />
-      </div>
-    </div>
-  </div>
+    </TableCell>
+    <TableCell className="text-right">
+      {(parseFloat(item.rate || '0') * (item.quantity || 0)).toFixed(2)}
+    </TableCell>
+  </TableRow>
 )
 
 interface OrderForm {
@@ -361,26 +348,48 @@ const AddOrder = () => {
               <Label className="flex gap-2 items-center justify-center border-b pb-2 text-xl">
                 Products
               </Label>
-              <div className="space-y-3">
-                {fromdata.products.map((item, index) => (
-                  <ProductInput
-                    key={`${item.productId}-${index}`}
-                    item={item}
-                    onChangePrice={(value) => updateProductPrice(index, value)}
-                  />
-                ))}
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Group</TableHead>
+                      <TableHead>Product</TableHead>
+                      <TableHead className="text-right">Quantity</TableHead>
+                      <TableHead>Rate</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {fromdata.products.map((item, index) => (
+                      <ProductInput
+                        key={`${item.productId}-${index}`}
+                        item={item}
+                        onChangePrice={(value) =>
+                          updateProductPrice(index, value)
+                        }
+                      />
+                    ))}
+                  </TableBody>
+                  <TableFooter>
+                    <TableRow>
+                      <TableCell colSpan={2}>
+                        Total Items: {fromdata.products.length}
+                      </TableCell>
+                      <TableCell colSpan={3} className="text-right">
+                        Total Amount:{' '}
+                        {fromdata.products
+                          .reduce(
+                            (acc, item) =>
+                              acc + Number(item.quantity) * Number(item.rate),
+                            0
+                          )
+                          .toFixed(2)}{' '}
+                        taka
+                      </TableCell>
+                    </TableRow>
+                  </TableFooter>
+                </Table>
               </div>
-            </div>
-            <div>
-              <Label className="text-3xl">
-                Total - {fromdata?.products?.length} items ·{' '}
-                {fromdata?.products?.reduce(
-                  (acc, item) =>
-                    acc + Number(item?.quantity) * Number(item?.rate),
-                  0
-                )}{' '}
-                taka.
-              </Label>
             </div>
           </>
         )}

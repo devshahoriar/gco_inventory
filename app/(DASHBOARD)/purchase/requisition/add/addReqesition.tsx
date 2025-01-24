@@ -16,6 +16,15 @@ import {
   getReqesitionNumber,
   saveRequisition,
 } from './action'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 const ProductInput = ({
   index,
@@ -50,63 +59,49 @@ const ProductInput = ({
   }
 
   return (
-    <div className="space-y-2 border p-4 rounded-md relative">
-      <Button
-        variant="ghost"
-        className="absolute top-0 right-0"
-        onClick={() => removeItem(index)}
-      >
-        <X className="size-4" />
-      </Button>
-      <div className="mt-4 grid md:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-2">
-        <div className="space-y-2">
-          <Label>Group</Label>
-          <AsyncSelect
-            fetcher={(v?: string) => getProductGroup(v, fromData?.groupId)}
-            renderOption={(item) => <div>{item.name}</div>}
-            getOptionValue={(item) => item.id}
-            getDisplayValue={(item) => item.name}
-            label="Group"
-            placeholder="Group"
-            value={fromData.groupId}
-            onChange={(v) => {
-              updateItem({
-                ...fromData,
-                groupId: v,
-                productId: '',
-                quantity: '0',
-              })
-            }}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Name</Label>
-
-          <AsyncSelect
-            fetcher={(v?: string) => getProductForSelect(fromData?.groupId, v)}
-            renderOption={(item) => <div>{item.name}</div>}
-            getOptionValue={(item) => item.id}
-            getDisplayValue={(item) => item.name}
-            label="Product"
-            placeholder="Product"
-            value={fromData.productId}
-            onChange={(v, options) => {
-              const curentItem = options?.find((item) => item.id === v)
-              setProductUnit(curentItem?.productUnit?.unit || '')
-              updateItem({
-                ...fromData,
-                productId: v,
-                groupId: curentItem?.productGroupId || '',
-                quantity: '0',
-              })
-            }}
-          />
-        </div>
-
+    <TableRow>
+      <TableCell>
+        <AsyncSelect
+          fetcher={(v?: string) => getProductGroup(v, fromData?.groupId)}
+          renderOption={(item) => <div>{item.name}</div>}
+          getOptionValue={(item) => item.id}
+          getDisplayValue={(item) => item.name}
+          placeholder="Select Group"
+          value={fromData.groupId}
+          onChange={(v) => {
+            updateItem({
+              ...fromData,
+              groupId: v,
+              productId: '',
+              quantity: '0',
+            })
+          }}
+        />
+      </TableCell>
+      <TableCell>
+        <AsyncSelect
+          fetcher={(v?: string) => getProductForSelect(fromData?.groupId, v)}
+          renderOption={(item) => <div>{item.name}</div>}
+          getOptionValue={(item) => item.id}
+          getDisplayValue={(item) => item.name}
+          placeholder="Select Product"
+          value={fromData.productId}
+          onChange={(v, options) => {
+            const curentItem = options?.find((item) => item.id === v)
+            setProductUnit(curentItem?.productUnit?.unit || '')
+            updateItem({
+              ...fromData,
+              productId: v,
+              groupId: curentItem?.productGroupId || '',
+              quantity: '0',
+            })
+          }}
+        />
+      </TableCell>
+      <TableCell>
         <InputParent
-          labelTitle={`Quantity ${productUnit ? '(' + productUnit + ')' : ''}`}
           type="number"
+          placeholder={`Quantity ${productUnit ? '(' + productUnit + ')' : ''}`}
           value={fromData.quantity}
           onChange={(e) =>
             updateItem({
@@ -115,14 +110,24 @@ const ProductInput = ({
             })
           }
         />
+      </TableCell>
+      <TableCell>
         <InputParent
-          labelTitle="Remarks"
+          placeholder="Add remarks..."
           value={fromData.remarks}
           onChange={(e) => updateItem({ ...fromData, remarks: e.target.value })}
-          placeholder="Add notes or remark..."
         />
-      </div>
-    </div>
+      </TableCell>
+      <TableCell>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => removeItem(index)}
+        >
+          <X className="size-4" />
+        </Button>
+      </TableCell>
+    </TableRow>
   )
 }
 
@@ -269,27 +274,52 @@ export const AddRequisition = ({
         {prodCount > 0 && (
           <div className="space-y-3">
             <Label className="flex gap-2 items-center justify-center border-b pb-2 text-xl">
-              <span>{prodCount}</span>
               Products
             </Label>
-            <div className="space-y-3">
-              {[...Array(prodCount)].map((_, i) => (
-                <ProductInput
-                  key={i}
-                  index={i}
-                  reqItems={formData.reqItems}
-                  updateReqItems={updateReqItems}
-                  removeItem={removeItem}
-                />
-              ))}
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Group</TableHead>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Quantity</TableHead>
+                    <TableHead>Remarks</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {[...Array(prodCount)].map((_, i) => (
+                    <ProductInput
+                      key={i}
+                      index={i}
+                      reqItems={formData.reqItems}
+                      updateReqItems={updateReqItems}
+                      removeItem={removeItem}
+                    />
+                  ))}
+                </TableBody>
+                <TableFooter>
+                  <TableRow>
+                    <TableCell colSpan={5}>
+                      Total Items: {prodCount}
+                    </TableCell>
+                  </TableRow>
+                </TableFooter>
+              </Table>
             </div>
           </div>
         )}
 
-        <Button type="button" variant="outline" className='!bg-transparent' onClick={addProduct}>
+        <Button 
+          type="button" 
+          variant="outline" 
+          className='!bg-transparent' 
+          onClick={addProduct}
+        >
           <PlusCircle className="mr-2 h-4 w-4" />
           Add Product
         </Button>
+
         <div className="!mt-2">
           <div className="text-red-500 text-sm h-[20px] !mb-1">{error}</div>
           <div className="">

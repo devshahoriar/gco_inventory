@@ -23,7 +23,7 @@ Input.displayName = 'Input'
 
 type Props =
   | {
-      labelTitle: string
+      labelTitle?: string
       pClassName?: string
       isTextArea?: boolean
     } & React.ComponentProps<'input'>
@@ -36,7 +36,7 @@ const InputParent = ({
 }: Props) => {
   return (
     <div className={cn('space-y-1', pClassName)}>
-      <Label>{labelTitle}</Label>
+      {labelTitle && <Label>{labelTitle}</Label>}
       {isTextArea ? (
         <Textarea {...(props as React.ComponentProps<'textarea'>)} />
       ) : (
