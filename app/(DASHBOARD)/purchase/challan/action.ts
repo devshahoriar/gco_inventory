@@ -2,13 +2,13 @@ import { CHALLAN_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
 import { unstable_cache } from 'next/cache'
 
-export class challan {
+export class Challan {
   orgId!: string
   tag: string = CHALLAN_TAG + this.orgId
   constructor(orgId: string) {
     this.orgId = orgId
   }
-  getChallan = unstable_cache(
+  getAllChallan = unstable_cache(
     async () =>
       prisma.challan.findMany({
         where: {

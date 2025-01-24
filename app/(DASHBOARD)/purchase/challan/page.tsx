@@ -1,17 +1,16 @@
 import { ContentLayout } from '@/components/admin-panel/content-layout'
-import { getActiveOrg } from '@/lib/auth'
-import React from 'react'
-import { challan } from './action'
 import { PageLeftComponent, PageTopBar } from '@/components/shared/PageElement'
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+import { getActiveOrg } from '@/lib/auth'
 import { PlusCircle } from 'lucide-react'
+import Link from 'next/link'
+import { Challan } from './action'
 
-const ChallanPage =async () => {
+const ChallanPage = async () => {
   const orgId = await getActiveOrg()
-  const c= new challan(orgId)
-  const data = await c.getChallan()
-  
+  const ch = new Challan(orgId)
+  const data = await ch.getAllChallan()
+ 
   return (
     <ContentLayout title="Challan">
       <PageTopBar>
