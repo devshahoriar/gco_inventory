@@ -5,22 +5,22 @@ import { getActiveOrg } from '@/lib/auth'
 import prisma from '@/prisma/db'
 
 interface ChallanData {
-  orderId: string;
-  challanNumber: string;
-  challanDate: Date;
-  challanDueDate: Date;
-  branceId: string;
-  warehouseId: string;
-  supplierId: string;
-  shippingAddress: string;
-  remarks: string;
+  orderId: string
+  challanNumber: string
+  challanDate: Date
+  challanDueDate: Date
+  branceId: string
+  warehouseId: string
+  supplierId: string
+  shippingAddress: string
+  remarks: string
   items: {
-    quantity: number;
-    rate: number;
-    batch: string;
-    description: string;
-    productId: string;
-  }[];
+    quantity: number
+    rate: number
+    batch: string
+    description: string
+    productId: string
+  }[]
 }
 
 export const getChallanNumber = async () => {
@@ -38,6 +38,7 @@ export const getOrderForSelect = async () => {
   return await prisma.order.findMany({
     where: {
       orgId,
+      isChalaned: false,
     },
     select: {
       id: true,
@@ -103,7 +104,7 @@ export const getOrderInForChallan = async (orderId: string) => {
 
 export const createChallan = async (data: ChallanData) => {
   const orgId = await getActiveOrg()
-  
+
   try {
     const challan = await prisma.challan.create({
       data: {
@@ -119,15 +120,24 @@ export const createChallan = async (data: ChallanData) => {
         orgId,
         ChallanItems: {
           createMany: {
-            data: data.items
-          }
-        }
+            data: data.items,
+          },
+        },
       },
-      include: {
-        ChallanItems: true
-      }
+      select: {
+        id: true,
+      },
     })
-    
+    await prisma.order.update({
+      where: {
+        id: data.orderId,
+      },
+      data: {
+        isChalaned: true,
+      },
+    })
+
+
     return { success: true, data: challan }
   } catch (error) {
     console.error(error)

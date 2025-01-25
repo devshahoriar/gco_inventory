@@ -311,8 +311,8 @@ model Order {
   supingAddress String
   remarks       String?
   OrderItems    OrderItems[]
-
-  Challan Challan?
+  isChalaned    Boolean      @default(false)
+  Challan       Challan?
 }
 
 model OrderItems {

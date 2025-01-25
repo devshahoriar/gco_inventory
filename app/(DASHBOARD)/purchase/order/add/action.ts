@@ -165,7 +165,7 @@ export const createOrder = async (data: any) => {
     }
 
     // Create order with items in a transaction
-    revalidateTag(ORDER_TAG)
+   
     const result = await prisma.$transaction(
       async (tx) => {
         // Create the order
@@ -222,7 +222,7 @@ export const createOrder = async (data: any) => {
         
       }
     )
-
+    revalidateTag(ORDER_TAG)
     return result
   } catch (error: any) {
     if (error.code === 'P2002') {
