@@ -49,19 +49,15 @@ export const updateOrder = async (id: string, data: any) => {
           where: { orderId: id },
         })
 
-        // Create new order items
-        const orderItems = await Promise.all(
-          data.products.map((product: any) =>
-            tx.orderItems.create({
-              data: {
-                orderId: order.id,
-                productId: product.productId,
-                quantity: product.quantity,
-                price: parseFloat(product.rate),
-              },
-            })
-          )
-        )
+        // Create new order items using createMany
+        const orderItems = await tx.orderItems.createMany({
+          data: data.products.map((product: any) => ({
+            orderId: order.id,
+            productId: product.productId,
+            quantity: product.quantity,
+            price: parseFloat(product.rate),
+          })),
+        })
 
         return { order, orderItems }
       },
@@ -74,6 +70,7 @@ export const updateOrder = async (id: string, data: any) => {
     revalidateTag(ORDER_TAG)
     return result
   } catch (error: any) {
+    console.error(error)
     throw new Error(error?.message || 'Failed to update order')
   }
 }

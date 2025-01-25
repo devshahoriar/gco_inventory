@@ -186,22 +186,15 @@ export const createOrder = async (data: any) => {
           },
         })
 
-        // Create order items
-        const orderItems = await Promise.all(
-          data.products.map((product: any) =>
-            tx.orderItems.create({
-              data: {
-                orderId: order.id,
-                productId: product.productId,
-                quantity: product.quantity,
-                price: parseFloat(product.rate),
-              },
-              select: {
-                id: true,
-              },
-            })
-          )
-        )
+        // Create order items using createMany
+        const orderItems = await tx.orderItems.createMany({
+          data: data.products.map((product: any) => ({
+            orderId: order.id,
+            productId: product.productId,
+            quantity: product.quantity,
+            price: parseFloat(product.rate),
+          })),
+        })
 
         // Update requisition status if reqId exists
         if (data.regId) {
