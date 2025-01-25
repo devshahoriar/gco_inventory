@@ -231,6 +231,7 @@ export const createOrder = async (data: any) => {
     if (error.code === 'P2003') {
       throw new Error('Invalid reference to product, supplier, or warehouse')
     }
+    console.error(error)
     throw new Error(error?.message || 'Failed to create order')
   }
 }
