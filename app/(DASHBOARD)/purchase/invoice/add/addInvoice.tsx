@@ -75,9 +75,29 @@ const ProductInput = ({
 
   return (
     <TableRow>
-      <TableCell>{item.productName}</TableCell>
-      <TableCell className="">{item.quantity}</TableCell>
-      <TableCell>{item.rate}</TableCell>
+      <TableCell>
+      {item.productName}
+      </TableCell>
+      <TableCell>
+        <Input
+          type="number"
+          value={item.quantity}
+          onChange={(e) => onChange('quantity', Number(e.target.value))}
+          placeholder="Quantity"
+          min={0}
+          className="!w-20"
+        />
+      </TableCell>
+      <TableCell>
+        <Input
+          type="number"
+          value={item.rate}
+          onChange={(e) => onChange('rate', e.target.value)}
+          placeholder="Rate"
+          min={0}
+          className="!w-24"
+        />
+      </TableCell>
       <TableCell>{subtotal.toFixed(2)}</TableCell>
       <TableCell>
         <Input
