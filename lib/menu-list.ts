@@ -1,17 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  AppWindowMac,
+  Archive,
+  BaggageClaim,
   Bolt,
-  Building2,
   Layers2,
   LayoutGrid,
   LucideIcon,
   NotebookText,
   Package,
   Settings,
-  Users,
-  BaggageClaim,
   ShieldEllipsis,
+  Users,
 } from 'lucide-react'
 
 type Submenu = {
@@ -59,6 +58,10 @@ export function getMenuList(pathname: string): Group[] {
               label: 'Branch',
             },
             {
+              href: '/purchase/supplier',
+              label: 'Supplier',
+            },
+            {
               href: '/admin/roles',
               label: 'Roles',
             },
@@ -93,10 +96,6 @@ export function getMenuList(pathname: string): Group[] {
           icon: BaggageClaim,
           submenus: [
             {
-              href: '/purchase/supplier',
-              label: 'Supplier',
-            },
-            {
               href: '/purchase/requisition',
               label: 'Requisition',
             },
@@ -128,6 +127,18 @@ export function getMenuList(pathname: string): Group[] {
           href: '/production',
           label: 'Production',
           icon: Bolt,
+        },
+
+        {
+          href: '',
+          label: 'Inventory',
+          icon: Archive,
+          submenus: [
+            {
+              href: '/inventory/stock-item',
+              label: 'Stock Item',
+            },
+          ],
         },
 
         {

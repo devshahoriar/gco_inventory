@@ -26,7 +26,7 @@ interface ChallanItem {
   rate: number
   batchNo: string
   description: string
-  productId: string // Add productId to your ChallanItem interface
+  productId: string
 }
 
 interface FormData {
@@ -163,7 +163,7 @@ const AddChalan = ({ chNum }: { chNum: string }) => {
       setLoading(true)
       if (formData?.orderId) {
         const order = (await getOrderInForChallan(formData.orderId)) as any
-
+    
         setFormData((prev) => ({
           ...prev,
           orderDate: order.orderDate.toISOString().split('T')[0],
@@ -176,6 +176,7 @@ const AddChalan = ({ chNum }: { chNum: string }) => {
           supplierId: order.Supplier.id,
           shippingAddress: order.supingAddress,
           items: order.OrderItems.map((item: any) => ({
+            productId: item.product.id,
             productName: item.product.name,
             quantity: item.quantity,
             rate: item.price,
@@ -218,7 +219,7 @@ const AddChalan = ({ chNum }: { chNum: string }) => {
           productId: item.productId // Make sure to add productId to your FormData interface
         }))
       }
-
+ 
       const response = await createChallan(challanData)
       
       if (response.success) {

@@ -1,9 +1,7 @@
 import { PrismaClient } from './out'
 
 const prismaClientSingleton = () => {
-  return new PrismaClient({
-    log: ['query'],
-  })
+  return new PrismaClient({})
 }
 
 declare const globalThis: {

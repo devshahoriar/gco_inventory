@@ -46,6 +46,7 @@ export const getAllReq = unstable_cache(
                 name: true,
               },
             },
+            
             quantity: true,
             groupId: true,
             group: {

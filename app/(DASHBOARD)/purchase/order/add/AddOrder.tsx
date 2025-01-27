@@ -28,6 +28,7 @@ import {
   getSuppliersForSelect,
   getWarehousesForSelect,
 } from './action'
+import Link from 'next/link'
 
 interface OrderItem {
   productId: string
@@ -180,13 +181,13 @@ const AddOrder = () => {
     setLoading(true)
     try {
       await createOrder(fromdata)
+      setFormData(initialData)
+      setLoading(false)
+      toast.success('Order added successfully')
+      mutate()
     } catch (error: any) {
       setError(error?.message || 'Failed to add order')
     }
-    setFormData(initialData)
-    setLoading(false)
-    toast.success('Order added successfully')
-    mutate()
   }
 
   if (canOrder) {
@@ -296,7 +297,7 @@ const AddOrder = () => {
               getOptionValue={(item) => item.id}
               getDisplayValue={(item) => item.name}
               label="Branch"
-              placeholder="Branch"
+              placeholder="Warehouse"
               value={fromdata.warehouseId}
               onChange={(value) => handleChange('warehouseId', value)}
             />
@@ -416,6 +417,9 @@ const AddOrder = () => {
         onClick={() => window.location.reload()}
       >
         Refresh
+      </Button>
+      <Button className="mt-3" variant="outline" asChild>
+        <Link href="/purchase/requisition/add">Add Reqesition</Link>
       </Button>
     </div>
   )

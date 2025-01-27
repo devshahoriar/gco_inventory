@@ -9,7 +9,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from '@/components/ui/table'
 import { getActiveOrg } from '@/lib/auth'
 import { PlusCircle } from 'lucide-react'
 import Link from 'next/link'
@@ -21,7 +21,7 @@ const ChallanPage = async () => {
 
   // Calculate total amount for each challan
   const calculateTotal = (items: any[]) => {
-    return items.reduce((sum, item) => sum + (item.quantity * item.rate), 0)
+    return items.reduce((sum, item) => sum + item.quantity * item.rate, 0)
   }
 
   return (
@@ -50,8 +50,18 @@ const ChallanPage = async () => {
           <TableBody>
             {data?.map((challan) => (
               <TableRow key={challan.id}>
-                <TableCell>{challan.challanNo}</TableCell>
-                <TableCell>{new Date(challan.challanDate).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  {challan.challanNo}
+
+                  {challan?.isInvoiceEd && (
+                    <span className="ml-3 bg-green-500 bg-opacity-50 text-xs px-2 py-1 rounded-sm">
+                      Invoiced
+                    </span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {new Date(challan.challanDate).toLocaleDateString()}
+                </TableCell>
                 <TableCell>{challan.Supplier?.name || 'N/A'}</TableCell>
                 <TableCell>{challan.supingAddress}</TableCell>
                 <TableCell className="text-right">

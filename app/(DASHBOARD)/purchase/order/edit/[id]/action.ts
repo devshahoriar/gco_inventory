@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
-import { ORDER_TAG } from '@/lib/constant'
+import { ORDER_TAG, REQUISITION_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
 import { revalidateTag } from 'next/cache'
 
@@ -68,6 +68,7 @@ export const updateOrder = async (id: string, data: any) => {
     )
 
     revalidateTag(ORDER_TAG)
+     revalidateTag(REQUISITION_TAG)
     return result
   } catch (error: any) {
     console.error(error)

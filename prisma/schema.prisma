@@ -99,6 +99,7 @@ model Organization {
   Order       Order[]
   Branch      Branch[]
   Challan     Challan[]
+  Invoice     Invoice[]
 
   @@map("organization")
 }
@@ -143,6 +144,7 @@ model Warehouse {
   active         Boolean      @default(true)
   Order          Order[]
   Challan        Challan[]
+  Invoice        Invoice[]
 
   @@map("warehouse")
 }
@@ -171,6 +173,7 @@ model Product {
   ReqItems       ReqItems[]
   OrderItems     OrderItems[]
   ChallanItems   ChallanItems[]
+  InvoiceItems   InvoiceItems[]
 
   @@map("product")
 }
@@ -189,6 +192,7 @@ model Supplier {
   createdAt      DateTime     @default(now())
   Order          Order[]
   Challan        Challan[]
+  Invoice        Invoice[]
 
   @@map("supplier")
 }
@@ -263,6 +267,7 @@ model Branch {
   updatedAt      DateTime     @updatedAt
   Order          Order[]
   Challan        Challan[]
+  Invoice        Invoice[]
 
   @@map("branch")
 }
@@ -346,6 +351,8 @@ model Challan {
   supingAddress String
   remarks       String?
   ChallanItems  ChallanItems[]
+  isInvoiceEd   Boolean        @default(false)
+  Invoice       Invoice?
 }
 
 model ChallanItems {
@@ -359,4 +366,38 @@ model ChallanItems {
   product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   Challan   Challan? @relation(fields: [challanId], references: [id], onDelete: Cascade)
   challanId String?
+}
+
+model Invoice {
+  id             String         @id @default(cuid())
+  invoiceNo      String
+  invoideDate    DateTime
+  challanId      String         @unique
+  Challan        Challan        @relation(fields: [challanId], references: [id], onDelete: Cascade)
+  branceId       String
+  Branch         Branch         @relation(fields: [branceId], references: [id], onDelete: Cascade)
+  orgId          String
+  Organization   Organization   @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  wareHouseId    String
+  Warehouse      Warehouse      @relation(fields: [wareHouseId], references: [id], onDelete: Cascade)
+  supplierId     String
+  Supplier       Supplier       @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  address        String
+  remarks        String?
+  InvoiceAmmount String
+  InvoiceItems   InvoiceItems[]
+}
+
+model InvoiceItems {
+  id          String @id @default(cuid())
+  quantity    Int
+  rate        Float
+  batch       String
+  discount    Float
+  description String
+  productId   String
+
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  Invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoiceId String
 }

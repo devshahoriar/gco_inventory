@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
 import { getActiveOrg } from '@/lib/auth'
-import { ORDER_TAG } from '@/lib/constant'
+import { ORDER_TAG, REQUISITION_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
+import { format } from 'date-fns'
 import { revalidateTag } from 'next/cache'
 
 export const getRegesitionForSelect = async (text?: string, id?: string) => {
@@ -90,7 +91,7 @@ export const getOrderNo = async () => {
       orgId: orgId,
     },
   })
-  return 'Order-' + orderCount + 1
+  return 'Order-' + orderCount + 1 +'-'+format(new Date(),'dd/MM/yyyy')
 }
 
 // ⬆️⬆️⬆️  other data for select ⬆️⬆️⬆️
@@ -152,17 +153,6 @@ export const createOrder = async (data: any) => {
       throw new Error('All products must have valid prices')
     }
 
-    // Check if order number already exists
-    const existingOrder = await prisma.order.findFirst({
-      where: { orderNo: data.orderNo },
-      select: {
-        id: true,
-      },
-    })
-
-    if (existingOrder) {
-      throw new Error('Order number already exists')
-    }
 
     // Create order with items in a transaction
    
@@ -216,6 +206,7 @@ export const createOrder = async (data: any) => {
       }
     )
     revalidateTag(ORDER_TAG)
+    revalidateTag(REQUISITION_TAG)
     return result
   } catch (error: any) {
     if (error.code === 'P2002') {

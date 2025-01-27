@@ -72,7 +72,14 @@ const OrderPage = async () => {
 
                 return (
                   <TableRow key={order.id}>
-                    <TableCell>{order.orderNo}</TableCell>
+                    <TableCell>
+                      {order.orderNo}
+                      {order?.isChalaned && (
+                        <span className="ml-3 bg-green-500 bg-opacity-50 text-xs px-2 py-1 rounded-sm">
+                          Challand
+                        </span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       {format(new Date(order.orderDate), 'PP')}
                     </TableCell>

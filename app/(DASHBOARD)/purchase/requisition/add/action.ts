@@ -5,6 +5,7 @@
 import { getActiveOrg, getUser } from '@/lib/auth'
 import { REQUISITION_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
+import { format } from 'date-fns'
 import { revalidateTag } from 'next/cache'
 import { headers } from 'next/headers'
 
@@ -111,5 +112,5 @@ export const getReqesitionNumber = async () => {
       organizationId: orgId,
     },
   })
-  return `REQ-${regC + 1}`
+  return `REQ-${regC + 1}-${format(new Date(),'dd/MM/yyyy')}`
 }

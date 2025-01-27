@@ -3,6 +3,8 @@
 
 import { getActiveOrg } from '@/lib/auth'
 import prisma from '@/prisma/db'
+import { format } from 'date-fns'
+import { revalidateTag } from 'next/cache'
 
 interface ChallanData {
   orderId: string
@@ -30,7 +32,7 @@ export const getChallanNumber = async () => {
       orgId,
     },
   })
-  return `CH-${challan + 1}`
+  return `CH-${challan + 1}-${format(new Date(),'dd/MM/yyyy')}`
 }
 
 export const getOrderForSelect = async () => {
@@ -103,6 +105,7 @@ export const getOrderInForChallan = async (orderId: string) => {
 }
 
 export const createChallan = async (data: ChallanData) => {
+
   const orgId = await getActiveOrg()
 
   try {
@@ -136,7 +139,8 @@ export const createChallan = async (data: ChallanData) => {
         isChalaned: true,
       },
     })
-
+    revalidateTag('ORDER_TAG')
+    revalidateTag('CHALLAN_TAG')
 
     return { success: true, data: challan }
   } catch (error) {

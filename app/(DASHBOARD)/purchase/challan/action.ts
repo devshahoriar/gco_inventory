@@ -7,6 +7,7 @@ export const getAllChallan = async (orgId: string) => {
     },
     include: {
       Supplier: true,
+      
       ChallanItems: {
         include: {
           product: true,
