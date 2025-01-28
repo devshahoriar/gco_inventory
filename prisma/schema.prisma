@@ -174,6 +174,7 @@ model Product {
   OrderItems     OrderItems[]
   ChallanItems   ChallanItems[]
   InvoiceItems   InvoiceItems[]
+  ReturnItems    ReturnItems[]
 
   @@map("product")
 }
@@ -193,6 +194,7 @@ model Supplier {
   Order          Order[]
   Challan        Challan[]
   Invoice        Invoice[]
+  Return         Return[]
 
   @@map("supplier")
 }
@@ -235,25 +237,6 @@ model Purchase {
   @@map("purchase")
 }
 
-model Return {
-  id             String   @id @default(cuid())
-  description    String?  @db.Text
-  price          Float
-  currency       String?  @default("taka")
-  discount       Float?   @default(0)
-  quantity       Int
-  metadata       String?  @db.Text
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime
-  organizationId String
-  warehouseId    String
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  warehouse    Warehouse    @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
-
-  @@map("return")
-}
-
 model Branch {
   id             String       @id @default(cuid())
   name           String       @db.VarChar(255)
@@ -268,6 +251,7 @@ model Branch {
   Order          Order[]
   Challan        Challan[]
   Invoice        Invoice[]
+  Return         Return[]
 
   @@map("branch")
 }
@@ -318,6 +302,8 @@ model Order {
   OrderItems    OrderItems[]
   isChalaned    Boolean      @default(false)
   Challan       Challan?
+
+  returnId String?
 }
 
 model OrderItems {
@@ -334,8 +320,8 @@ model OrderItems {
 
 model Challan {
   id             String   @id @default(cuid())
-  orderId        String   @unique
-  Order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId        String?   @unique
+  Order          Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
   challanNo      String
   challanDate    DateTime
   challanDueDate DateTime
@@ -365,15 +351,15 @@ model ChallanItems {
 
   product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   Challan   Challan? @relation(fields: [challanId], references: [id], onDelete: Cascade)
-  challanId String?
+  challanId String
 }
 
 model Invoice {
   id             String         @id @default(cuid())
   invoiceNo      String
   invoideDate    DateTime
-  challanId      String         @unique
-  Challan        Challan        @relation(fields: [challanId], references: [id], onDelete: Cascade)
+  challanId      String?        @unique
+  Challan        Challan?       @relation(fields: [challanId], references: [id], onDelete: SetNull)
   branceId       String
   Branch         Branch         @relation(fields: [branceId], references: [id], onDelete: Cascade)
   orgId          String
@@ -386,6 +372,9 @@ model Invoice {
   remarks        String?
   InvoiceAmmount String
   InvoiceItems   InvoiceItems[]
+  isReturn       Boolean        @default(false)
+
+  Return Return?
 }
 
 model InvoiceItems {
@@ -400,4 +389,39 @@ model InvoiceItems {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   Invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   invoiceId String
+}
+
+model Return {
+  id            String   @id @default(cuid())
+  returnNo      String
+  returnDate    DateTime
+  returnDueDate DateTime
+
+  orgId        String
+  Organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  branceId     String?
+  Branch       Branch?      @relation(fields: [branceId], references: [id], onDelete: SetNull)
+  warehouseId  String?
+  Warehouse    Warehouse?   @relation(fields: [warehouseId], references: [id], onDelete: SetNull)
+  supplierId   String?
+  Supplier     Supplier?    @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+
+  remarks String?
+
+  ReturnItems ReturnItems[]
+  invoiceId   String?       @unique
+  Invoice     Invoice?      @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+}
+
+model ReturnItems {
+  id          String  @id @default(cuid())
+  quantity    Int
+  rate        Float
+  batch       String
+  description String
+  productId   String?
+
+  product  Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  Return   Return?  @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  returnId String
 }
