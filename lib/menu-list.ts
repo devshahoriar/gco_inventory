@@ -138,6 +138,10 @@ export function getMenuList(pathname: string): Group[] {
               href: '/inventory/stock-item',
               label: 'Stock Item',
             },
+            {
+              href: '/inventory/opningbalance',
+              label: 'Openning Balance',
+            },
           ],
         },
 

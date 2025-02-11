@@ -2,6 +2,7 @@
 'use server'
 
 import { getActiveOrg } from '@/lib/auth'
+import { CHALLAN_TAG, ORDER_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
 import { format } from 'date-fns'
 import { revalidateTag } from 'next/cache'
@@ -139,8 +140,8 @@ export const createChallan = async (data: ChallanData) => {
         isChalaned: true,
       },
     })
-    revalidateTag('ORDER_TAG')
-    revalidateTag('CHALLAN_TAG')
+    revalidateTag(ORDER_TAG)
+    revalidateTag(CHALLAN_TAG)
 
     return { success: true, data: challan }
   } catch (error) {

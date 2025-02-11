@@ -100,6 +100,7 @@ model Organization {
   Branch      Branch[]
   Challan     Challan[]
   Invoice     Invoice[]
+  StockItems  StockItems[]
 
   @@map("organization")
 }
@@ -145,6 +146,7 @@ model Warehouse {
   Order          Order[]
   Challan        Challan[]
   Invoice        Invoice[]
+  StockItems     StockItems[]
 
   @@map("warehouse")
 }
@@ -175,6 +177,7 @@ model Product {
   ChallanItems   ChallanItems[]
   InvoiceItems   InvoiceItems[]
   ReturnItems    ReturnItems[]
+  StockItems     StockItems[]
 
   @@map("product")
 }
@@ -252,6 +255,7 @@ model Branch {
   Challan        Challan[]
   Invoice        Invoice[]
   Return         Return[]
+  StockItems     StockItems[]
 
   @@map("branch")
 }
@@ -320,7 +324,7 @@ model OrderItems {
 
 model Challan {
   id             String   @id @default(cuid())
-  orderId        String?   @unique
+  orderId        String?  @unique
   Order          Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
   challanNo      String
   challanDate    DateTime
@@ -374,7 +378,8 @@ model Invoice {
   InvoiceItems   InvoiceItems[]
   isReturn       Boolean        @default(false)
 
-  Return Return?
+  Return     Return?
+  StockItems StockItems[]
 }
 
 model InvoiceItems {
@@ -424,4 +429,27 @@ model ReturnItems {
   product  Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   Return   Return?  @relation(fields: [returnId], references: [id], onDelete: Cascade)
   returnId String
+}
+
+model StockItems {
+  id          String @id @default(cuid())
+  quantity    Int
+  rate        Float
+  batch       String
+  description String
+
+  discount    Float
+  invoiceId   String
+  invoice     Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  branceId    String
+  branch      Branch    @relation(fields: [branceId], references: [id], onDelete: Cascade)
+
+  orgId        String
+  Organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }

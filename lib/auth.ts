@@ -6,11 +6,19 @@ import { cookies, headers } from 'next/headers'
 import { cache } from 'react'
 import { getSession } from './authClient'
 import prisma from '@/prisma/db'
+import { SecondaryStorage } from './secondaryStorage'
+
+const secondaryStorageInstance = new SecondaryStorage();
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: 'mysql',
   }),
+  secondaryStorage: {
+    get: async (key) => secondaryStorageInstance.get(key),
+    set: async (key, value, ttl) => secondaryStorageInstance.set(key, value, ttl),
+    delete: async (key) => secondaryStorageInstance.delete(key)
+  },
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,

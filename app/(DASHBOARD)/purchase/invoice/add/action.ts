@@ -4,6 +4,7 @@
 import { getActiveOrg } from '@/lib/auth'
 import prisma from '@/prisma/db'
 import { format } from 'date-fns'
+import { after } from 'next/server'
 
 export const addInvoice = async (data: any) => {
   try {
@@ -46,6 +47,23 @@ export const addInvoice = async (data: any) => {
       data: {
         isInvoiceEd: true,
       },
+    })
+
+    after(async () => {
+      await prisma.stockItems.createMany({
+        data: data.items.map((item: any) => ({
+          quantity: item.quantity,
+          rate: parseFloat(item.rate),
+          batch: item.batch || '',
+          description: item.description || '',
+          discount: parseFloat(item.discount) || 0,
+          invoiceId: invoice.id,
+          productId: item.productId,
+          warehouseId: data.wareHouseId,
+          orgId: orgId,
+          branceId: data.branceId,
+        })),
+      })
     })
 
     return invoice
