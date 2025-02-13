@@ -4,29 +4,35 @@ import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
+// Update type to exactly match prisma return type
 type StockItem = {
   id: string
-  batch: string
-  invoice: { invoiceNo: string }
-  branch: { name: string }
   description: string
-  discount: number
   rate: number
-  warehouse: { name: string }
   product: {
-    name: string
     id: string
-    productUnit: { name: string }
+    name: string
+    productUnit: {
+      name: string
+    }
+  }
+  warehouse: {
+    name: string
+  }
+  batch: string
+  discount: number
+  invoice: {
+    invoiceNo: string
   }
 }
 
 export const columns: ColumnDef<StockItem>[] = [
   {
-    accessorKey: "product.name",
+    accessorFn: (row) => row.product.name,
     header: "Product Name",
   },
   {
-    accessorKey: "product.productUnit.name",
+    accessorFn: (row) => row.product.productUnit.name,
     header: "Unit",
   },
   {
@@ -47,7 +53,7 @@ export const columns: ColumnDef<StockItem>[] = [
   },
   {
     id: "branch",
-    accessorFn: row => row.branch.name,
+    accessorFn: (row) => row.warehouse.name, // Changed from branch.name to warehouse.name
     header: ({ column }) => {
       return (
         <Button
@@ -64,7 +70,7 @@ export const columns: ColumnDef<StockItem>[] = [
   },
   {
     id: "warehouse",
-    accessorFn: row => row.warehouse.name,
+    accessorFn: (row) => row.warehouse.name,
     header: ({ column }) => {
       return (
         <Button
@@ -81,7 +87,7 @@ export const columns: ColumnDef<StockItem>[] = [
   },
   {
     id: "invoice",
-    accessorFn: row => row.invoice.invoiceNo,
+    accessorFn: (row) => row.invoice.invoiceNo,
     header: ({ column }) => {
       return (
         <Button
