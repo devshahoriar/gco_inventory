@@ -4,6 +4,7 @@
 import { getActiveOrg } from '@/lib/auth'
 import prisma from '@/prisma/db'
 import { format } from 'date-fns'
+import { after } from 'next/server'
 
 export async function getInvoicesForSelect(search?: string) {
   try {
@@ -92,6 +93,37 @@ export async function createReturn(data: any) {
         },
       },
     })
+
+    after(async () => {
+      for (const item of data.items) {
+        const existingStock = await prisma.stockItems.findFirst({
+          where: {
+            productId: item.productId,
+            warehouseId: data.wareHouseId,
+            orgId: orgId,
+            batch: item.batch || ''
+          }
+        });
+
+        if (existingStock) {
+          const newQuantity = existingStock.quantity - item.quantity;
+          if (newQuantity <= 0) {
+            // Delete the stock item if quantity becomes 0 or negative
+            await prisma.stockItems.delete({
+              where: { id: existingStock.id }
+            });
+          } else {
+            // Update with reduced quantity
+            await prisma.stockItems.update({
+              where: { id: existingStock.id },
+              data: {
+                quantity: newQuantity
+              }
+            });
+          }
+        }
+      }
+    });
     
     return result
   } catch (error: any) {

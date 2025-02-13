@@ -1,5 +1,1 @@
-
-vendor add in database
-
-
-/requisition/add --- product search option, Other fild are don't diaper
+opening balance => mas shes a kichu stock item kom beshi hole seta adjust .. history rakhte hobe.. koto chilo , koto holo , koto adjust kora holo aigula kora hobe.

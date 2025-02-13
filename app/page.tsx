@@ -152,8 +152,8 @@ export default async function Home() {
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1,234</div>
-              <p className="text-xs text-muted-foreground">+12 this week</p>
+              <div className="text-2xl font-bold">0</div>
+              <p className="text-xs text-muted-foreground">0</p>
             </CardContent>
           </Card>
           <Card>
@@ -164,7 +164,7 @@ export default async function Home() {
               <AlertCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">23</div>
+              <div className="text-2xl font-bold">0</div>
               <p className="text-xs text-muted-foreground">Needs attention</p>
             </CardContent>
           </Card>
@@ -174,7 +174,7 @@ export default async function Home() {
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$52,234</div>
+              <div className="text-2xl font-bold">$0</div>
               <p className="text-xs text-muted-foreground">
                 Current inventory value
               </p>
@@ -186,7 +186,7 @@ export default async function Home() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">15</div>
+              <div className="text-2xl font-bold">0</div>
               <p className="text-xs text-muted-foreground">
                 Across organization
               </p>

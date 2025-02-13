@@ -50,20 +50,43 @@ export const addInvoice = async (data: any) => {
     })
 
     after(async () => {
-      await prisma.stockItems.createMany({
-        data: data.items.map((item: any) => ({
-          quantity: item.quantity,
-          rate: parseFloat(item.rate),
-          batch: item.batch || '',
-          description: item.description || '',
-          discount: parseFloat(item.discount) || 0,
-          invoiceId: invoice.id,
-          productId: item.productId,
-          warehouseId: data.wareHouseId,
-          orgId: orgId,
-          branceId: data.branceId,
-        })),
-      })
+      for (const item of data.items) {
+        const existingStock = await prisma.stockItems.findFirst({
+          where: {
+            productId: item.productId,
+            warehouseId: data.wareHouseId,
+            orgId: orgId,
+            batch: item.batch || ''
+          }
+        });
+
+        if (existingStock) {
+          await prisma.stockItems.update({
+            where: { id: existingStock.id },
+            data: {
+              quantity: existingStock.quantity + item.quantity,
+              rate: parseFloat(item.rate),
+              description: item.description || '',
+              discount: parseFloat(item.discount) || 0,
+              invoiceId: invoice.id
+            }
+          });
+        } else {
+          await prisma.stockItems.create({
+            data: {
+              quantity: item.quantity,
+              rate: parseFloat(item.rate),
+              batch: item.batch || '',
+              description: item.description || '',
+              discount: parseFloat(item.discount) || 0,
+              invoiceId: invoice.id,
+              productId: item.productId,
+              warehouseId: data.wareHouseId,
+              orgId: orgId,
+            }
+          });
+        }
+      }
     })
 
     return invoice

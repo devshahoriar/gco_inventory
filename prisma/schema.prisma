@@ -81,26 +81,27 @@ model OrgLogo {
 }
 
 model Organization {
-  id          String        @id @default(cuid())
-  name        String        @db.Text
-  slug        String        @unique
-  createdAt   DateTime
-  metadata    String?       @db.Text
-  logoId      String?
-  invitations Invitation[]
-  members     Member[]
-  logo        OrgLogo?      @relation(fields: [logoId], references: [id])
-  Product     Product[]
-  Warehouse   Warehouse[]
-  Supplier    Supplier[]
-  Purchase    Purchase[]
-  Return      Return[]
-  Requisition Requisition[]
-  Order       Order[]
-  Branch      Branch[]
-  Challan     Challan[]
-  Invoice     Invoice[]
-  StockItems  StockItems[]
+  id             String           @id @default(cuid())
+  name           String           @db.Text
+  slug           String           @unique
+  createdAt      DateTime
+  metadata       String?          @db.Text
+  logoId         String?
+  invitations    Invitation[]
+  members        Member[]
+  logo           OrgLogo?         @relation(fields: [logoId], references: [id])
+  Product        Product[]
+  Warehouse      Warehouse[]
+  Supplier       Supplier[]
+  Purchase       Purchase[]
+  Return         Return[]
+  Requisition    Requisition[]
+  Order          Order[]
+  Branch         Branch[]
+  Challan        Challan[]
+  Invoice        Invoice[]
+  StockItems     StockItems[]
+  OpningBalances OpningBalances[]
 
   @@map("organization")
 }
@@ -134,19 +135,20 @@ model Invitation {
 }
 
 model Warehouse {
-  id             String       @id @default(cuid())
-  name           String       @db.Text
-  description    String?      @db.Text
-  address        String       @db.Text
+  id             String           @id @default(cuid())
+  name           String           @db.Text
+  description    String?          @db.Text
+  address        String           @db.Text
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   Purchase       Purchase[]
   Return         Return[]
-  active         Boolean      @default(true)
+  active         Boolean          @default(true)
   Order          Order[]
   Challan        Challan[]
   Invoice        Invoice[]
   StockItems     StockItems[]
+  OpningBalances OpningBalances[]
 
   @@map("warehouse")
 }
@@ -159,25 +161,26 @@ model ProductImage {
 }
 
 model Product {
-  id             String         @id @default(cuid())
-  name           String         @db.VarChar(255)
-  description    String?        @db.VarChar(255)
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id             String           @id @default(cuid())
+  name           String           @db.VarChar(255)
+  description    String?          @db.VarChar(255)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
   organizationId String
   productImageId String?
   productGroupId String
   productUnitId  String
-  productUnit    ProductUnit    @relation(fields: [productUnitId], references: [id])
-  ProductGroup   ProductGroup   @relation(fields: [productGroupId], references: [id])
-  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  ProductImage   ProductImage?  @relation(fields: [productImageId], references: [id])
+  productUnit    ProductUnit      @relation(fields: [productUnitId], references: [id])
+  ProductGroup   ProductGroup     @relation(fields: [productGroupId], references: [id])
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  ProductImage   ProductImage?    @relation(fields: [productImageId], references: [id])
   ReqItems       ReqItems[]
   OrderItems     OrderItems[]
   ChallanItems   ChallanItems[]
   InvoiceItems   InvoiceItems[]
   ReturnItems    ReturnItems[]
   StockItems     StockItems[]
+  OpningBalances OpningBalances[]
 
   @@map("product")
 }
@@ -255,7 +258,6 @@ model Branch {
   Challan        Challan[]
   Invoice        Invoice[]
   Return         Return[]
-  StockItems     StockItems[]
 
   @@map("branch")
 }
@@ -445,11 +447,28 @@ model StockItems {
   product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   warehouseId String
   warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
-  branceId    String
-  branch      Branch    @relation(fields: [branceId], references: [id], onDelete: Cascade)
 
   orgId        String
   Organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
+}
+
+model OpningBalances {
+  id       String   @id @default(cuid())
+  quantity Int
+  rate     Float
+  remark   String?
+  openData DateTime
+
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  orgId        String
+  Organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
