@@ -15,11 +15,6 @@ export const getAllStockItems = async (orgId: string) => {
           invoiceNo: true,
         },
       },
-      branch: {
-        select: {
-          name: true,
-        },
-      },
       description: true,
       discount: true,
       rate: true,
