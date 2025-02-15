@@ -80,18 +80,16 @@ export const saveOpningBalance = async (data: {
 
   try {
     return await prisma.$transaction(async (tx) => {
-      // Create main OpningBalances record
+
       const opningBalance = await tx.opningBalances.create({
         data: {
-          quantity: data.items.reduce((sum, item) => sum + item.quantity + item.adjustQuantity, 0),
-          rate: 0,
           openDate: data.openDate,
           remark: data.remark, 
           orgId: orgId,
         },
       })
 
-      // Create OpningBalancesItem records
+
       await tx.opningBalancesItem.createMany({
         data: data.items.map((item) => ({
           productId: item.productId,
@@ -103,7 +101,6 @@ export const saveOpningBalance = async (data: {
         })),
       })
 
-      // Update stock items
       for (const item of data.items) {
         const existingStock = await tx.stockItems.findFirst({
           where: {
