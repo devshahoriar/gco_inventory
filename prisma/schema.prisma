@@ -434,24 +434,21 @@ model ReturnItems {
 }
 
 model StockItems {
-  id          String @id @default(cuid())
+  id          String   @id @default(cuid())
   quantity    Int
   rate        Float
   batch       String
   description String
-
   discount    Float
-  invoiceId   String
-  invoice     Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoiceId   String?  // Make this optional
+  invoice     Invoice? @relation(fields: [invoiceId], references: [id], onDelete: Cascade) // Make this optional
   productId   String
   product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   warehouseId String
   warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
-
-  orgId        String
+  orgId       String
   Organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
+  createdAt   DateTime @default(now())
 }
 
 model OpningBalances {

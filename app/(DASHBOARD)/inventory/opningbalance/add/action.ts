@@ -83,7 +83,7 @@ export const saveOpningBalance = async (data: {
         data: data.items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity + item.adjustQuantity,
-          rate: 0, // Default to 0 since we're removing rate input
+          rate: 0,
           remark: item.remark,
           warehouseId: data.warehouseId,
           orgId: orgId,
@@ -91,7 +91,6 @@ export const saveOpningBalance = async (data: {
         })),
       })
 
-      // Update stock items for each product
       for (const item of data.items) {
         const existingStock = await tx.stockItems.findFirst({
           where: {
@@ -109,27 +108,11 @@ export const saveOpningBalance = async (data: {
             where: { id: existingStock.id },
             data: {
               quantity: finalQuantity,
-              rate: 0, // Default to 0
               description: item.remark || 'Opening Balance Entry',
             },
           })
-        } else {
-          await tx.stockItems.create({
-            data: {
-              quantity: finalQuantity,
-              rate: 0, // Default to 0
-              batch: 'OPENING-BALANCE',
-              description: item.remark || 'Opening Balance Entry',
-              discount: 0,
-              invoiceId: '',
-              productId: item.productId,
-              warehouseId: data.warehouseId,
-              orgId: orgId,
-            },
-          })
-        }
+        } 
       }
-
       return { success: true, count: items.count }
     })
   } catch (error) {
