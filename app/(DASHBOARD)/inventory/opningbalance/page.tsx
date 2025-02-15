@@ -35,24 +35,24 @@ const OpningBalance = async () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Product</TableHead>
-              <TableHead>Warehouse</TableHead>
-              <TableHead>Quantity</TableHead>
-              <TableHead>Rate</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="text-right">Total Amount</TableHead>
+              <TableHead>Opening Date</TableHead>
+              <TableHead>Items Count</TableHead>
+              <TableHead>Remark</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {allOpningBalances?.map((balance) => (
               <TableRow key={balance.id}>
-                <TableCell>{balance.product?.name}</TableCell>
-                <TableCell>{balance.warehouse?.name}</TableCell>
-                <TableCell>{balance.quantity}</TableCell>
-                <TableCell>৳{balance.rate}</TableCell>
-                <TableCell>{format(balance.openData, 'dd-MM-yyyy')}</TableCell>
+                <TableCell>{format(balance.openDate, 'dd-MM-yyyy')}</TableCell>
+                <TableCell>{balance.OpningBalancesItem.length}</TableCell>
+                <TableCell>{balance.remark || '-'}</TableCell>
                 <TableCell className="text-right">
-                  ৳{(balance.quantity * balance.rate).toFixed(2)}
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/inventory/opningbalance/${balance.id}`}>
+                      View Details
+                    </Link>
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

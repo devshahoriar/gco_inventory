@@ -153,7 +153,8 @@ export const AddOpningBalanceForm = () => {
   const [itemCount, setItemCount] = useState(0)
   const [formData, setFormData] = useState({
     warehouseId: '',
-    openData: new Date(),
+    openDate: new Date(),  // Changed from openData to openDate
+    remark: '',  // Add remark field
     items: [] as ItemType[],
   })
 
@@ -188,7 +189,7 @@ export const AddOpningBalanceForm = () => {
       setLoading(true)
       await saveOpningBalance({
         warehouseId: formData.warehouseId,
-        openData: formData.openData,
+        openDate: formData.openDate,  // Changed from openData to openDate
         items: formData.items.map(item => ({
           productId: item.productId,
           quantity: item.quantity,
@@ -199,7 +200,8 @@ export const AddOpningBalanceForm = () => {
       toast.success('Opening balance saved successfully')
       setFormData({
         warehouseId: '',
-        openData: new Date(),
+        openDate: new Date(),  // Changed from openData to openDate
+        remark: '',  // Add remark field
         items: [],
       })
       setItemCount(0)
@@ -254,8 +256,17 @@ export const AddOpningBalanceForm = () => {
         <div className='flex flex-col'>
           <Label>Opening Date</Label>
           <DateInput
-            value={formData.openData}
-            onChange={(date) => setFormData((prev) => ({ ...prev, openData: date || new Date() }))}
+            value={formData.openDate}  
+            onChange={(date) => setFormData((prev) => ({ ...prev, openDate: date || new Date() }))}  
+          />
+        </div>
+
+        <div className='flex flex-col'>
+          <Label>Remark</Label>
+          <InputParent
+            placeholder="Add any remarks..."
+            value={formData.remark}
+            onChange={(e) => setFormData(prev => ({ ...prev, remark: e.target.value }))}
           />
         </div>
 

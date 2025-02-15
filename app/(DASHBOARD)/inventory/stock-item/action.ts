@@ -18,6 +18,7 @@ export const getAllStockItems = async (orgId: string) => {
       description: true,
       discount: true,
       rate: true,
+      quantity: true,
       warehouse: {
         select: {
           name: true,

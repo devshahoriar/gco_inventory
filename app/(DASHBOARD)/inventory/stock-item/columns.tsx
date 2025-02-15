@@ -9,6 +9,7 @@ type StockItem = {
   id: string
   description: string
   rate: number
+  quantity: number
   product: {
     id: string
     name: string
@@ -23,7 +24,7 @@ type StockItem = {
   discount: number
   invoice: {
     invoiceNo: string
-  }
+  } | null
 }
 
 export const columns: ColumnDef<StockItem>[] = [
@@ -44,6 +45,22 @@ export const columns: ColumnDef<StockItem>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Rate
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
+    sortingFn: "basic",
+    enableSorting: true,
+  },
+  {
+    accessorKey: "quantity",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Quantity
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )
@@ -87,7 +104,7 @@ export const columns: ColumnDef<StockItem>[] = [
   },
   {
     id: "invoice",
-    accessorFn: (row) => row.invoice.invoiceNo,
+    accessorFn: (row) => row?.invoice?.invoiceNo,
     header: ({ column }) => {
       return (
         <Button

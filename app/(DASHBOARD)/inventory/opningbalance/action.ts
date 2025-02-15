@@ -7,25 +7,17 @@ export const getAllOpningBalanceForOrg = async (orgId: string) => {
     where: {
       orgId: orgId,
     },
-    select: {
-      id: true,
-      quantity: true,
-      rate: true,
-      remark: true,
-      openData: true,
-      product: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-      warehouse: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+    include: {
+      OpningBalancesItem: {
+        include: {
+          product: true,
+          warehouse: true,
+        }
+      }
     },
+    orderBy: {
+      openDate: 'desc'
+    }
   })
 
   return opningBalances

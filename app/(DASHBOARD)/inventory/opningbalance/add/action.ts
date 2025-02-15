@@ -67,7 +67,8 @@ export const getProductsForSelect = async (groupId?: string, text?: string) => {
 
 export const saveOpningBalance = async (data: {
   warehouseId: string
-  openData: Date
+  openDate: Date
+  remark?: string  // Add remark field
   items: Array<{
     productId: string
     quantity: number
@@ -79,25 +80,36 @@ export const saveOpningBalance = async (data: {
 
   try {
     return await prisma.$transaction(async (tx) => {
-      const items = await tx.opningBalances.createMany({
+      // Create main OpningBalances record
+      const opningBalance = await tx.opningBalances.create({
+        data: {
+          quantity: data.items.reduce((sum, item) => sum + item.quantity + item.adjustQuantity, 0),
+          rate: 0,
+          openDate: data.openDate,
+          remark: data.remark, 
+          orgId: orgId,
+        },
+      })
+
+      // Create OpningBalancesItem records
+      await tx.opningBalancesItem.createMany({
         data: data.items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity + item.adjustQuantity,
-          rate: 0,
           remark: item.remark,
           warehouseId: data.warehouseId,
+          opningBalancesId: opningBalance.id,
           orgId: orgId,
-          openData: data.openData,
         })),
       })
 
+      // Update stock items
       for (const item of data.items) {
         const existingStock = await tx.stockItems.findFirst({
           where: {
             productId: item.productId,
             warehouseId: data.warehouseId,
             orgId: orgId,
-            batch: 'OPENING-BALANCE',
           },
         })
 
@@ -106,14 +118,12 @@ export const saveOpningBalance = async (data: {
         if (existingStock) {
           await tx.stockItems.update({
             where: { id: existingStock.id },
-            data: {
-              quantity: finalQuantity,
-              description: item.remark || 'Opening Balance Entry',
-            },
+            data: { quantity: finalQuantity },
           })
-        } 
+        }
       }
-      return { success: true, count: items.count }
+
+      return { success: true }
     })
   } catch (error) {
     console.error(error)
