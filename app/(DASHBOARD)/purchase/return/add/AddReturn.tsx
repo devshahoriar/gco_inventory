@@ -62,9 +62,11 @@ const initialData: ReturnForm = {
 const ReturnItemRow = ({
   item,
   onChange,
+  onRemove
 }: {
   item: ReturnItem
   onChange: (field: keyof ReturnItem, value: string | number) => void
+  onRemove: () => void
 }) => {
   const total = item.rate * item.quantity
 
@@ -110,6 +112,15 @@ const ReturnItemRow = ({
         />
       </TableCell>
       <TableCell>{total.toFixed(2)}</TableCell>
+      <TableCell>
+        <button
+          onClick={onRemove}
+          className="text-red-500 hover:text-red-700"
+          type="button"
+        >
+          ✕
+        </button>
+      </TableCell>
     </TableRow>
   )
 }
@@ -136,6 +147,13 @@ const AddReturn = () => {
       items: prev.items.map((item, i) =>
         i === index ? { ...item, [field]: value } : item
       ),
+    }))
+  }
+
+  const removeItem = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index),
     }))
   }
 
@@ -315,6 +333,7 @@ const AddReturn = () => {
                   <TableHead>Batch</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Total</TableHead>
+                  <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -325,6 +344,7 @@ const AddReturn = () => {
                     onChange={(field, value) =>
                       handleItemChange(index, field, value)
                     }
+                    onRemove={() => removeItem(index)}
                   />
                 ))}
               </TableBody>

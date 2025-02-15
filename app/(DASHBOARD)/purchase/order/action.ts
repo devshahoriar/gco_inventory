@@ -1,10 +1,9 @@
 'use server'
 
-import { ORDER_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
-import { unstable_cache } from 'next/cache'
 
-export const getAllOrder = unstable_cache(
+
+export const getAllOrder =
   async (orgId: string) => {
     return prisma.order.findMany({
       where: {
@@ -26,9 +25,4 @@ export const getAllOrder = unstable_cache(
         },
       },
     })
-  },
-  undefined,
-  {
-    tags: [ORDER_TAG],
   }
-)

@@ -1,25 +1,18 @@
 'use server'
 
-import { REQUISITION_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
-import { unstable_cache } from 'next/cache'
 
 
-export const countReq = unstable_cache(
+export const countReq =
   async (orgId: string) => {
     return prisma.requisition.count({
       where: {
         organizationId: orgId,
       },
     })
-  },
-  undefined,
-  {
-    tags: [REQUISITION_TAG],
   }
-)
 
-export const getAllReq = unstable_cache(
+export const getAllReq = 
   async (orgId: string) => {
     return prisma.requisition.findMany({
       where: {
@@ -60,9 +53,4 @@ export const getAllReq = unstable_cache(
         updatedAt: true,
       },
     })
-  },
-  undefined,
-  {
-    tags: [REQUISITION_TAG],
   }
-)

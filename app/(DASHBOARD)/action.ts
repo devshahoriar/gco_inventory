@@ -1,8 +1,7 @@
 import prisma from '@/prisma/db'
 
-import { unstable_cache } from 'next/cache'
 
-export const getOrgById = unstable_cache(async (id) => {
+export const getOrgById = async (id:string) => {
   return prisma.organization.findUnique({
     where: {
       id: id,
@@ -11,4 +10,4 @@ export const getOrgById = unstable_cache(async (id) => {
       name: true,
     },
   })
-})
+}

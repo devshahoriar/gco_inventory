@@ -53,7 +53,7 @@ export const columns: ColumnDef<StockItem>[] = [
   },
   {
     id: "branch",
-    accessorFn: (row) => row.warehouse.name, // Changed from branch.name to warehouse.name
+    accessorFn: (row) => row.warehouse.name, 
     header: ({ column }) => {
       return (
         <Button

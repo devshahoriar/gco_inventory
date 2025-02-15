@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
 
-import { REQUISITION_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
-import { revalidateTag, unstable_cache } from 'next/cache'
 
 
-export const getRequisition = unstable_cache(
+export const getRequisition = 
   async (id: string, orgId: string) => {
     return prisma.requisition.findFirst({
       where: {
@@ -25,15 +23,10 @@ export const getRequisition = unstable_cache(
         },
       },
     })
-  },
-  undefined,
-  {
-    tags: [REQUISITION_TAG],
   }
-)
 
 export const updateRequisition = async (id: string, data: any) => {
-  revalidateTag(REQUISITION_TAG)
+
   try {
     return await prisma.$transaction(async (tx) => {
       const requisition = await tx.requisition.update({

@@ -3,14 +3,13 @@ import { SheetMenu } from '@/components/admin-panel/sheet-menu'
 import { UserNav } from '@/components/admin-panel/user-nav'
 import { getUser } from '@/lib/auth'
 import prisma from '@/prisma/db'
-import { unstable_cache } from 'next/cache'
 import { headers } from 'next/headers'
 
 interface NavbarProps {
   title: string
 }
 
-const getOrg = unstable_cache(async (id: string) => {
+const getOrg = async (id: string) => {
   return prisma.organization.findMany({
     where: {
       members: {
@@ -25,7 +24,7 @@ const getOrg = unstable_cache(async (id: string) => {
       slug: true,
     },
   })
-})
+}
 
 export async function Navbar({ title }: NavbarProps) {
   const user = await getUser(headers)

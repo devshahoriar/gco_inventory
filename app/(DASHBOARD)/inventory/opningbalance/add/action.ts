@@ -52,6 +52,14 @@ export const getProductsForSelect = async (groupId?: string, text?: string) => {
           unit: true,
         },
       },
+      StockItems: {
+        where: {
+          orgId: orgId,
+        },
+        select: {
+          quantity: true,
+        },
+      },
     },
     take: 20,
   })
@@ -63,7 +71,7 @@ export const saveOpningBalance = async (data: {
   items: Array<{
     productId: string
     quantity: number
-    rate: number
+    adjustQuantity: number
     remark?: string
   }>
 }) => {
@@ -74,8 +82,8 @@ export const saveOpningBalance = async (data: {
       const items = await tx.opningBalances.createMany({
         data: data.items.map((item) => ({
           productId: item.productId,
-          quantity: item.quantity,
-          rate: item.rate,
+          quantity: item.quantity + item.adjustQuantity,
+          rate: 0, // Default to 0 since we're removing rate input
           remark: item.remark,
           warehouseId: data.warehouseId,
           orgId: orgId,
@@ -90,35 +98,35 @@ export const saveOpningBalance = async (data: {
             productId: item.productId,
             warehouseId: data.warehouseId,
             orgId: orgId,
-            batch: 'OPENING-BALANCE'
-          }
-        });
+            batch: 'OPENING-BALANCE',
+          },
+        })
+
+        const finalQuantity = item.quantity + item.adjustQuantity
 
         if (existingStock) {
-          // Update existing stock
           await tx.stockItems.update({
             where: { id: existingStock.id },
             data: {
-              quantity: existingStock.quantity + item.quantity,
-              rate: item.rate,
-              description: item.remark || 'Opening Balance Entry'
-            }
-          });
+              quantity: finalQuantity,
+              rate: 0, // Default to 0
+              description: item.remark || 'Opening Balance Entry',
+            },
+          })
         } else {
-          // Create new stock entry
           await tx.stockItems.create({
             data: {
-              quantity: item.quantity,
-              rate: item.rate,
+              quantity: finalQuantity,
+              rate: 0, // Default to 0
               batch: 'OPENING-BALANCE',
               description: item.remark || 'Opening Balance Entry',
               discount: 0,
-              invoiceId: '', // Empty as this is opening balance
+              invoiceId: '',
               productId: item.productId,
               warehouseId: data.warehouseId,
               orgId: orgId,
-            }
-          });
+            },
+          })
         }
       }
 
@@ -129,4 +137,3 @@ export const saveOpningBalance = async (data: {
     throw new Error('Failed to save opening balance')
   }
 }
-

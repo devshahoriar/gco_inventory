@@ -2,12 +2,10 @@
 'use server'
 
 import { getActiveOrg, getUser } from '@/lib/auth'
-import { BRANCH_TAG } from '@/lib/constant'
 import prisma from '@/prisma/db'
-import { revalidateTag, unstable_cache } from 'next/cache'
 import { headers } from 'next/headers'
 
-export const getAllBranch = unstable_cache(
+export const getAllBranch = 
   async (orgId: string) => {
     return prisma.branch.findMany({
       where: {
@@ -21,16 +19,11 @@ export const getAllBranch = unstable_cache(
         name: true,
       },
     })
-  },
-  undefined,
-  {
-    tags: [BRANCH_TAG],
   }
-)
 
 export const addBranch = async (data: any) => {
   const user = (await getUser(headers)) as any
-  revalidateTag(BRANCH_TAG)
+
   return await prisma.branch.create({
     data: {
       address: data.address,
@@ -47,7 +40,7 @@ export const addBranch = async (data: any) => {
 
 export const editBranch = async (id: string, data: any) => {
   const orgId = await getActiveOrg()
-  revalidateTag(BRANCH_TAG)
+
   return await prisma.branch.update({
     where: {
       id,
@@ -63,7 +56,6 @@ export const editBranch = async (id: string, data: any) => {
 
 export const deleteBranch = async (id: string) => {
   const orgId = await getActiveOrg()
-  revalidateTag(BRANCH_TAG)
   return await prisma.branch.delete({
     where: {
       id,

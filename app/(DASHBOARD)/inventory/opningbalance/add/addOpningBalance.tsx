@@ -19,6 +19,14 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+type ItemType = {
+  productId: string
+  quantity: number
+  adjustQuantity: number
+  remark?: string
+  groupId?: string
+}
+
 const ProductInput = ({
   index,
   items,
@@ -26,20 +34,14 @@ const ProductInput = ({
   removeItem,
 }: {
   index: number
-  items: Array<{
-    productId: string
-    quantity: number
-    rate: number
-    remark?: string
-    groupId?: string
-  }>
-  updateItems: (items: any[]) => void
+  items: ItemType[]
+  updateItems: (items: ItemType[]) => void
   removeItem: (index: number) => void
 }) => {
   const [formData, setFormData] = useState({
     productId: items[index]?.productId || '',
     quantity: items[index]?.quantity || 0,
-    rate: items[index]?.rate || 0,
+    adjustQuantity: items[index]?.adjustQuantity || 0,
     remark: items[index]?.remark || '',
     groupId: items[index]?.groupId || '',
   })
@@ -89,12 +91,19 @@ const ProductInput = ({
           value={formData.productId}
           onChange={(v, options) => {
             const selectedProduct = options?.find((item) => item.id === v)
+            const currentStock = selectedProduct?.StockItems?.reduce(
+              (sum, item) => sum + item.quantity,
+              0
+            ) || 0
+            
             setProductUnit(selectedProduct?.productUnit?.unit || '')
             setSelectedGroup(selectedProduct?.productGroupId || '')
             updateItem({
               ...formData,
               productId: v,
               groupId: selectedProduct?.productGroupId || '',
+              quantity: currentStock,
+              adjustQuantity: 0,
             })
           }}
         />
@@ -104,23 +113,18 @@ const ProductInput = ({
           type="number"
           placeholder={`Quantity ${productUnit ? '(' + productUnit + ')' : ''}`}
           value={formData.quantity}
-          onChange={(e) =>
-            updateItem({
-              ...formData,
-              quantity: Number(e.target.value),
-            })
-          }
+          disabled={true}
         />
       </TableCell>
       <TableCell>
         <InputParent
           type="number"
-          placeholder="Rate"
-          value={formData.rate}
+          placeholder="Adjust Quantity"
+          value={formData.adjustQuantity}
           onChange={(e) =>
             updateItem({
               ...formData,
-              rate: Number(e.target.value),
+              adjustQuantity: Number(e.target.value),
             })
           }
         />
@@ -141,7 +145,7 @@ const ProductInput = ({
           <X className="size-4" />
         </Button>
       </TableCell>
-      </TableRow>
+    </TableRow>
   )
 }
 
@@ -150,13 +154,7 @@ export const AddOpningBalanceForm = () => {
   const [formData, setFormData] = useState({
     warehouseId: '',
     openData: new Date(),
-    items: [] as Array<{
-      productId: string
-      quantity: number
-      rate: number
-      remark?: string
-      groupId?: string
-    }>,
+    items: [] as ItemType[],
   })
 
   const [error, setError] = useState('')
@@ -179,8 +177,8 @@ export const AddOpningBalanceForm = () => {
 
     let hasError = false
     formData.items.forEach((item) => {
-      if (!item.productId || item.quantity <= 0 || item.rate <= 0) {
-        setError('Please fill all product details correctly')
+      if (!item.productId) {
+        setError('Please select all products')
         hasError = true
       }
     })
@@ -188,7 +186,16 @@ export const AddOpningBalanceForm = () => {
 
     try {
       setLoading(true)
-      await saveOpningBalance(formData)
+      await saveOpningBalance({
+        warehouseId: formData.warehouseId,
+        openData: formData.openData,
+        items: formData.items.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          adjustQuantity: item.adjustQuantity,
+          remark: item.remark
+        }))
+      })
       toast.success('Opening balance saved successfully')
       setFormData({
         warehouseId: '',
@@ -209,7 +216,13 @@ export const AddOpningBalanceForm = () => {
       ...prev,
       items: [
         ...prev.items,
-        { productId: '', quantity: 0, rate: 0, groupId: '' },
+        {
+          productId: '',
+          quantity: 0,
+          adjustQuantity: 0,
+          remark: '',
+          groupId: ''
+        },
       ],
     }))
   }
@@ -254,7 +267,7 @@ export const AddOpningBalanceForm = () => {
                   <TableHead>Group</TableHead>
                   <TableHead>Product</TableHead>
                   <TableHead>Quantity</TableHead>
-                  <TableHead>Rate</TableHead>
+                  <TableHead>Adjust Quantity</TableHead>
                   <TableHead>Remarks</TableHead>
                   <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
