@@ -119,9 +119,19 @@ export function getMenuList(pathname: string): Group[] {
         },
 
         {
-          href: '/sales',
+          href: '',
           label: 'Sales',
           icon: Layers2,
+          submenus: [
+            {
+              href: '/sales/customers',
+              label: 'Customers'
+            },
+            {
+              href: '/sales/order',
+              label: 'Order',
+            },
+          ],
         },
         {
           href: '/production',

@@ -103,6 +103,7 @@ model Organization {
   StockItems         StockItems[]
   OpningBalances     OpningBalances[]
   OpningBalancesItem OpningBalancesItem[]
+  Customers          Customers[]
 
   @@map("organization")
 }
@@ -479,4 +480,18 @@ model OpningBalances {
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   OpningBalancesItem OpningBalancesItem[]
+}
+
+model Customers {
+  id             String       @id @default(cuid())
+  name           String       @db.VarChar(255)
+  customersType  String       @db.VarChar(255)
+  customerNumber String       @db.VarChar(255)
+  address        String       @db.VarChar(255)
+  status         Boolean
+  mobile         String       @db.VarChar(20)
+  email          String       @db.VarChar(100)
+  note           String       @db.VarChar(255)
+  orgId          String
+  Organization   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
 }
