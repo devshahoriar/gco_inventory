@@ -24,6 +24,7 @@ model User {
   sessions      Session[]
   Requisition   Requisition[]
   Branch        Branch[]
+  SealsOrder    SealsOrder[]
 
   @@map("user")
 }
@@ -104,6 +105,7 @@ model Organization {
   OpningBalances     OpningBalances[]
   OpningBalancesItem OpningBalancesItem[]
   Customers          Customers[]
+  SealsOrder         SealsOrder[]
 
   @@map("organization")
 }
@@ -151,6 +153,7 @@ model Warehouse {
   Invoice            Invoice[]
   StockItems         StockItems[]
   OpningBalancesItem OpningBalancesItem[]
+  SealsOrder         SealsOrder[]
 
   @@map("warehouse")
 }
@@ -183,6 +186,7 @@ model Product {
   ReturnItems        ReturnItems[]
   StockItems         StockItems[]
   OpningBalancesItem OpningBalancesItem[]
+  SealsProduct       SealsProduct[]
 
   @@map("product")
 }
@@ -260,6 +264,7 @@ model Branch {
   Challan        Challan[]
   Invoice        Invoice[]
   Return         Return[]
+  SealsOrder     SealsOrder[]
 
   @@map("branch")
 }
@@ -494,4 +499,41 @@ model Customers {
   note           String       @db.VarChar(255)
   orgId          String
   Organization   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  SealsOrder     SealsOrder[]
+}
+
+model SealsProduct {
+  id         String     @id @default(cuid())
+  productId  String
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sealsId    String
+  SealsOrder SealsOrder @relation(fields: [sealsId], references: [id], onDelete: Cascade)
+  quantity   Int
+  rate       Float
+}
+
+model SealsOrder {
+  id         String    @id @default(cuid())
+  orderNo    String    @unique
+  branceId   String
+  warehoueId String
+  Warehouse  Warehouse @relation(fields: [warehoueId], references: [id], onDelete: Cascade)
+  customerId String
+  Customers  Customers @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  address          String
+  remarks          String?
+  placesOfDelivery String
+
+  orderDate        DateTime
+  deliveryDate     DateTime
+  salesExucutiveId String
+  salesExucutive   User           @relation(fields: [salesExucutiveId], references: [id], onDelete: Cascade)
+  contactPerson    String
+  contactNumber    String
+  orgId            String
+  Organization     Organization   @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  SealsProduct     SealsProduct[]
+  Branch           Branch?        @relation(fields: [branchId], references: [id])
+  branchId         String?
 }

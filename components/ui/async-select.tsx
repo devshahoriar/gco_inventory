@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from 'react'
 import { Check, ChevronsUpDown, Loader2 } from 'lucide-react'
 import { useDebounce } from '@/hooks/use-debounce'
@@ -28,7 +29,7 @@ export interface Option {
 
 export interface AsyncSelectProps<T> {
   /** Async function to fetch options */
-  fetcher: (query?: string) => Promise<T[]> | T[]
+  fetcher: (query?: string) => Promise<T[]> | T[] |any
   /** Preload all data ahead of time */
   preload?: boolean
   /** Function to filter options */
