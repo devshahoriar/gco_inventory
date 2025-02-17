@@ -67,7 +67,7 @@ const ProductInput = ({
       <TableCell>
         <AsyncSelect
           fetcher={getProductGroup}
-          renderOption={(item) => <div>{item.name}</div>}
+          renderOption={(item:any) => <div>{item.name}</div>}
           getOptionValue={(item) => item.id}
           getDisplayValue={(item) => item.name}
           placeholder="Select Group"
@@ -84,7 +84,7 @@ const ProductInput = ({
       <TableCell>
         <AsyncSelect
           fetcher={(v?: string) => getProductsForSelect(formData?.groupId, v)}
-          renderOption={(item) => <div>{item.name}</div>}
+          renderOption={(item:any) => <div>{item.name}</div>}
           getOptionValue={(item) => item.id}
           getDisplayValue={(item) => item.name}
           placeholder="Select Product"
@@ -92,7 +92,7 @@ const ProductInput = ({
           onChange={(v, options) => {
             const selectedProduct = options?.find((item) => item.id === v)
             const currentStock = selectedProduct?.StockItems?.reduce(
-              (sum, item) => sum + item.quantity,
+              (sum:any, item:any) => sum + item.quantity,
               0
             ) || 0
             
@@ -244,7 +244,7 @@ export const AddOpningBalanceForm = () => {
           <Label>Warehouse</Label>
           <AsyncSelect
             fetcher={getWarehouseForSelect}
-            renderOption={(item) => <div>{item.name}</div>}
+            renderOption={(item:any) => <div>{item.name}</div>}
             getOptionValue={(item) => item.id}
             getDisplayValue={(item) => item.name}
             placeholder="Select Warehouse"

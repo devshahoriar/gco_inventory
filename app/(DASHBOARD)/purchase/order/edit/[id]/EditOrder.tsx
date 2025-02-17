@@ -158,7 +158,7 @@ const EditOrder = ({ initialData }: { initialData: any }) => {
           <Label>Select Branch</Label>
           <AsyncSelect
             fetcher={(v) => getBrancesForSelect(v, formData.branchId)}
-            renderOption={(item) => <>{item.name}</>}
+            renderOption={(item:any) => <>{item.name}</>}
             getOptionValue={(item) => item.id}
             getDisplayValue={(item) => item.name}
             label="Branch"
@@ -172,7 +172,7 @@ const EditOrder = ({ initialData }: { initialData: any }) => {
           <Label>Select Warehouse</Label>
           <AsyncSelect
             fetcher={(v) => getWarehousesForSelect(v, formData.warehouseId)}
-            renderOption={(item) => <>{item.name}</>}
+            renderOption={(item:any) => <>{item.name}</>}
             getOptionValue={(item) => item.id}
             getDisplayValue={(item) => item.name}
             label="Warehouse"
@@ -186,7 +186,7 @@ const EditOrder = ({ initialData }: { initialData: any }) => {
           <Label>Select Supplier</Label>
           <AsyncSelect
             fetcher={(v) => getSuppliersForSelect(v, formData.supplierId)}
-            renderOption={(item) => <>{item.name}</>}
+            renderOption={(item:any) => <>{item.name}</>}
             getOptionValue={(item) => item.id}
             getDisplayValue={(item) => item.name}
             label="Supplier"

@@ -212,7 +212,7 @@ const AddReturn = () => {
                 }))
               }
 
-              const selectedInvoice = options.find((opt) => opt.id === value)
+              const selectedInvoice:any = options.find((opt:any) => opt.id === value)
               if (!selectedInvoice) return
 
               setFormData((prev) => ({
@@ -235,7 +235,7 @@ const AddReturn = () => {
                   })) || [],
               }))
             }}
-            getOptionValue={(option) => option.id}
+            getOptionValue={(option:any) => option.id}
             getDisplayValue={(option) => option.invoiceNo}
             renderOption={(option) => (
               <div>

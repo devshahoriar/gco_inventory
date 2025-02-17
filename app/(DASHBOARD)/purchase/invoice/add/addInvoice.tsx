@@ -212,7 +212,7 @@ const AddInvoice = () => {
             label="Challan"
             placeholder="Select Challan"
             fetcher={getChalanForSelect}
-            renderOption={(item) => (
+            renderOption={(item:any) => (
               <>
                 {item.challanNo} · {item._count.ChallanItems} Items
               </>

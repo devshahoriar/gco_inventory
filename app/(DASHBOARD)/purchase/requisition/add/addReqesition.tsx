@@ -63,7 +63,7 @@ const ProductInput = ({
       <TableCell>
         <AsyncSelect
           fetcher={(v?: string) => getProductGroup(v, fromData?.groupId)}
-          renderOption={(item) => <div>{item.name}</div>}
+          renderOption={(item:any) => <div>{item.name}</div>}
           getOptionValue={(item) => item.id}
           getDisplayValue={(item) => item.name}
           placeholder="Select Group"
@@ -81,7 +81,7 @@ const ProductInput = ({
       <TableCell>
         <AsyncSelect
           fetcher={(v?: string) => getProductForSelect(fromData?.groupId, v)}
-          renderOption={(item) => <div>{item.name}</div>}
+          renderOption={(item:any) => <div>{item.name}</div>}
           getOptionValue={(item) => item.id}
           getDisplayValue={(item) => item.name}
           placeholder="Select Product"

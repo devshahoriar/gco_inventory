@@ -209,7 +209,7 @@ const AddOrder = () => {
                 }
                 return x
               }}
-              renderOption={(item) => (
+              renderOption={(item:any) => (
                 <div>
                   {item.regNumber} · {item._count.reqItems} Items
                 </div>
@@ -278,7 +278,7 @@ const AddOrder = () => {
 
             <AsyncSelect
               fetcher={(v) => getBrancesForSelect(v, fromdata.branchId)}
-              renderOption={(item) => <>{item.name}</>}
+              renderOption={(item:any) => <>{item.name}</>}
               getOptionValue={(item) => item.id}
               getDisplayValue={(item) => item.name}
               label="Branch"
@@ -293,7 +293,7 @@ const AddOrder = () => {
 
             <AsyncSelect
               fetcher={(v) => getWarehousesForSelect(v, fromdata.warehouseId)}
-              renderOption={(item) => <>{item.name}</>}
+              renderOption={(item:any) => <>{item.name}</>}
               getOptionValue={(item) => item.id}
               getDisplayValue={(item) => item.name}
               label="Branch"
@@ -307,7 +307,7 @@ const AddOrder = () => {
             <Label>Select Supllayers</Label>
             <AsyncSelect
               fetcher={(v) => getSuppliersForSelect(v, fromdata.supplierId)}
-              renderOption={(item) => <>{item.name}</>}
+              renderOption={(item:any) => <>{item.name}</>}
               getOptionValue={(item) => item.id}
               getDisplayValue={(item) => item.name}
               label="Supllayers"

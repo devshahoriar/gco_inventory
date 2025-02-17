@@ -254,7 +254,7 @@ const AddChalan = ({ chNum }: { chNum: string }) => {
               label="Order"
               placeholder="Select Order"
               fetcher={getOrderForSelect}
-              renderOption={(item) => (
+              renderOption={(item:any) => (
                 <>
                   {item.orderNo} · {item._count.OrderItems} Items
                 </>
