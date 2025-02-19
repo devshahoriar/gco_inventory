@@ -10,14 +10,14 @@ datasource db {
 }
 
 model User {
-  id            String        @id
-  name          String        @db.Text
-  email         String        @unique
+  id            String         @id
+  name          String         @db.Text
+  email         String         @unique
   emailVerified Boolean
-  image         String?       @db.Text
+  image         String?        @db.Text
   createdAt     DateTime
   updatedAt     DateTime
-  active        Boolean?      @default(true)
+  active        Boolean?       @default(true)
   accounts      Account[]
   invitations   Invitation[]
   members       Member[]
@@ -25,6 +25,7 @@ model User {
   Requisition   Requisition[]
   Branch        Branch[]
   SealsOrder    SealsOrder[]
+  SealsChallan  SealsChallan[]
 
   @@map("user")
 }
@@ -106,6 +107,7 @@ model Organization {
   OpningBalancesItem OpningBalancesItem[]
   Customers          Customers[]
   SealsOrder         SealsOrder[]
+  SealsChallan       SealsChallan[]
 
   @@map("organization")
 }
@@ -154,6 +156,7 @@ model Warehouse {
   StockItems         StockItems[]
   OpningBalancesItem OpningBalancesItem[]
   SealsOrder         SealsOrder[]
+  SealsChallan       SealsChallan[]
 
   @@map("warehouse")
 }
@@ -187,6 +190,7 @@ model Product {
   StockItems         StockItems[]
   OpningBalancesItem OpningBalancesItem[]
   SealsProduct       SealsProduct[]
+  SealsChallanItem   SealsChallanItem[]
 
   @@map("product")
 }
@@ -250,21 +254,22 @@ model Purchase {
 }
 
 model Branch {
-  id             String       @id @default(cuid())
-  name           String       @db.VarChar(255)
-  description    String?      @db.VarChar(255)
-  address        String       @db.VarChar(255)
+  id             String         @id @default(cuid())
+  name           String         @db.VarChar(255)
+  description    String?        @db.VarChar(255)
+  address        String         @db.VarChar(255)
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   creatorId      String
-  creator        User         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  creator        User           @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
   Order          Order[]
   Challan        Challan[]
   Invoice        Invoice[]
   Return         Return[]
   SealsOrder     SealsOrder[]
+  SealsChallan   SealsChallan[]
 
   @@map("branch")
 }
@@ -488,18 +493,19 @@ model OpningBalances {
 }
 
 model Customers {
-  id             String       @id @default(cuid())
-  name           String       @db.VarChar(255)
-  customersType  String       @db.VarChar(255)
-  customerNumber String       @db.VarChar(255)
-  address        String       @db.VarChar(255)
+  id             String         @id @default(cuid())
+  name           String         @db.VarChar(255)
+  customersType  String         @db.VarChar(255)
+  customerNumber String         @db.VarChar(255)
+  address        String         @db.VarChar(255)
   status         Boolean
-  mobile         String       @db.VarChar(20)
-  email          String       @db.VarChar(100)
-  note           String       @db.VarChar(255)
+  mobile         String         @db.VarChar(20)
+  email          String         @db.VarChar(100)
+  note           String         @db.VarChar(255)
   orgId          String
-  Organization   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  Organization   Organization   @relation(fields: [orgId], references: [id], onDelete: Cascade)
   SealsOrder     SealsOrder[]
+  SealsChallan   SealsChallan[]
 }
 
 model SealsProduct {
@@ -534,6 +540,63 @@ model SealsOrder {
   orgId            String
   Organization     Organization   @relation(fields: [orgId], references: [id], onDelete: Cascade)
   SealsProduct     SealsProduct[]
-  Branch           Branch?        @relation(fields: [branchId], references: [id])
-  branchId         String?
+  Branch           Branch?        @relation(fields: [branceId], references: [id])
+
+  SealsChallan SealsChallan?
+}
+
+model SealsChallanItem {
+  id          String @id @default(cuid())
+  description String
+  quantity    Int
+  alterUnit   String
+
+  productId      String
+  product        Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sealsChallanId String
+  SealsChallan   SealsChallan? @relation(fields: [sealsChallanId], references: [id], onDelete: Cascade)
+}
+
+model SealsChallan {
+  id              String @id @default(cuid())
+  salessChallanNo String
+
+  sealdOrderID String     @unique
+  SealsOrder   SealsOrder @relation(fields: [sealdOrderID], references: [id], onDelete: Cascade)
+
+  brancesId String
+  Branch    Branch @relation(fields: [brancesId], references: [id], onDelete: Cascade)
+
+  wareHouseId String
+  Warehouse   Warehouse @relation(fields: [wareHouseId], references: [id], onDelete: Cascade)
+
+  customerId String
+  Customers  Customers @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  orgId        String
+  Organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  sealsExucutiveId String
+  sealsExucutive   User   @relation(fields: [sealsExucutiveId], references: [id], onDelete: Cascade)
+
+  sealsChallanItems SealsChallanItem[]
+
+  contractPerson   String
+  addreess         String
+  designation      String
+  remark           String?
+  contactNumber    String
+  placesOfDelivery String
+  customerVat      String
+  poNo             String
+  poDate           DateTime
+  exclusiveMobile  String
+  salesOrder       String
+  salesOrderDate   DateTime
+  driverName       String
+  driverMobile     String
+  transotMode      String
+  vehicleNo        String
+  clallanDate      DateTime
+  dueDate          DateTime
 }

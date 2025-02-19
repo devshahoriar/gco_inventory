@@ -131,6 +131,10 @@ export function getMenuList(pathname: string): Group[] {
               href: '/sales/order',
               label: 'Order',
             },
+            {
+              href: '/sales/challan',
+              label: 'Challan',
+            },
           ],
         },
         {

@@ -62,7 +62,7 @@ const initialData: ReturnForm = {
 const ReturnItemRow = ({
   item,
   onChange,
-  onRemove
+  onRemove,
 }: {
   item: ReturnItem
   onChange: (field: keyof ReturnItem, value: string | number) => void
@@ -136,7 +136,6 @@ const AddReturn = () => {
     },
   })
 
-
   const handleItemChange = (
     index: number,
     field: keyof ReturnItem,
@@ -158,7 +157,6 @@ const AddReturn = () => {
   }
 
   const handleSubmit = async () => {
-
     setError(null)
     if (!formData.invoiceId) {
       return setError('Please select an invoice')
@@ -212,7 +210,9 @@ const AddReturn = () => {
                 }))
               }
 
-              const selectedInvoice:any = options.find((opt:any) => opt.id === value)
+              const selectedInvoice: any = options.find(
+                (opt: any) => opt.id === value
+              )
               if (!selectedInvoice) return
 
               setFormData((prev) => ({
@@ -235,7 +235,7 @@ const AddReturn = () => {
                   })) || [],
               }))
             }}
-            getOptionValue={(option:any) => option.id}
+            getOptionValue={(option: any) => option.id}
             getDisplayValue={(option) => option.invoiceNo}
             renderOption={(option) => (
               <div>
