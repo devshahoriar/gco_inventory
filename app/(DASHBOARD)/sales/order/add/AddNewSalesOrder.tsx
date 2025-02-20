@@ -155,21 +155,27 @@ const ProductInput = ({
   )
 }
 
-export const AddNewSalesOrder = () => {
+interface Props {
+  initialData?: any
+  isEdit?: boolean
+  onSubmit?: (id: string, data: any) => Promise<any>
+}
+
+export const AddNewSalesOrder = ({ initialData, isEdit, onSubmit }: Props) => {
   const [formData, setFormData] = useState({
-    orderNo: '',
-    branceId: '',
-    warehoueId: '',
-    customerId: '',
-    address: '',
-    remarks: '',
-    placesOfDelivery: '',
-    orderDate: new Date(),
-    deliveryDate: new Date(),
-    salesExucutiveId: '',
-    contactPerson: '',
-    contactNumber: '',
-    products: [] as Array<{
+    orderNo: initialData?.orderNo || '',
+    branceId: initialData?.branceId || '',
+    warehoueId: initialData?.warehoueId || '',
+    customerId: initialData?.customerId || '',
+    address: initialData?.address || '',
+    remarks: initialData?.remarks || '',
+    placesOfDelivery: initialData?.placesOfDelivery || '',
+    orderDate: initialData?.orderDate || new Date(),
+    deliveryDate: initialData?.deliveryDate || new Date(),
+    salesExucutiveId: initialData?.salesExucutiveId || '',
+    contactPerson: initialData?.contactPerson || '',
+    contactNumber: initialData?.contactNumber || '',
+    products: initialData?.products || [] as Array<{
       productId: string
       productName: string
       quantity: number
@@ -273,11 +279,16 @@ export const AddNewSalesOrder = () => {
 
     setLoading(true)
     try {
-      await createSalesOrder(formData)
-      toast.success('Sales order created successfully')
+      if (isEdit && onSubmit) {
+        await onSubmit(initialData.id, formData)
+        toast.success('Sales order updated successfully')
+      } else {
+        await createSalesOrder(formData)
+        toast.success('Sales order created successfully')
+      }
       router.push('/sales/order')
     } catch (error: any) {
-      setError(error.message || 'Failed to create sales order')
+      setError(error.message || 'Failed to process sales order')
     } finally {
       setLoading(false)
     }

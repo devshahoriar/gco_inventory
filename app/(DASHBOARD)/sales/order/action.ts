@@ -16,6 +16,11 @@ export const getAllSalesOrders = async (orgId: string) => {
           product: true,
         },
       },
+      SealsChallan: {
+        select:{
+          id:true
+        }
+      },
     },
   })
 }

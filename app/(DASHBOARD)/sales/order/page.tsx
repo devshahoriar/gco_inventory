@@ -72,7 +72,16 @@ async function OrderPage() {
 
                 return (
                   <TableRow key={order.id}>
-                    <TableCell>{order.orderNo}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {order.orderNo}
+                        {order.SealsChallan && (
+                          <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                            Challaned
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       {format(new Date(order.orderDate), 'PP')}
                     </TableCell>
@@ -85,11 +94,13 @@ async function OrderPage() {
                     <TableCell>{order.Branch?.name || 'N/A'}</TableCell>
                     <TableCell>{order.Warehouse.name}</TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="sm" asChild>
-                        {/* <Link href={`/sales/order/edit/${order.id}`}>
-                          Edit
-                        </Link> */}
-                      </Button>
+                      {!order.SealsChallan && (
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link href={`/sales/order/edit/${order.id}`}>
+                            Edit
+                          </Link>
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 )
