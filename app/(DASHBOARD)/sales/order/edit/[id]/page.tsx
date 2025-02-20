@@ -5,14 +5,13 @@ import { getSalesOrderById } from './action'
 import EditSalesOrder from './EditSalesOrder'
 
 type Props = {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
 async function EditOrderPage({ params }: Props) {
+  const orderId = (await params).id
   const orgId = await getActiveOrg()
-  const order = await getSalesOrderById(params.id, orgId)
+  const order = await getSalesOrderById(orderId, orgId)
 
   if (!order) {
     notFound()
