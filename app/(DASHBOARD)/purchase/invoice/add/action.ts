@@ -54,11 +54,9 @@ export const addInvoice = async (data: any) => {
         const existingStock = await prisma.stockItems.findFirst({
           where: {
             productId: item.productId,
-            warehouseId: data.wareHouseId,
             orgId: orgId,
-            batch: item.batch || ''
-          }
-        });
+          },
+        })
 
         if (existingStock) {
           await prisma.stockItems.update({
@@ -68,9 +66,9 @@ export const addInvoice = async (data: any) => {
               rate: parseFloat(item.rate),
               description: item.description || '',
               discount: parseFloat(item.discount) || 0,
-              invoiceId: invoice.id
-            }
-          });
+              invoiceId: invoice.id,
+            },
+          })
         } else {
           await prisma.stockItems.create({
             data: {
@@ -83,8 +81,8 @@ export const addInvoice = async (data: any) => {
               productId: item.productId,
               warehouseId: data.wareHouseId,
               orgId: orgId,
-            }
-          });
+            },
+          })
         }
       }
     })
