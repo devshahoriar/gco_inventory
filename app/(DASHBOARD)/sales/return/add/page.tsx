@@ -1,10 +1,12 @@
 import { ContentLayout } from '@/components/admin-panel/content-layout'
-import React from 'react'
+import AddSealsReturn from './addReturn'
 
-const AddSealspage = () => {
+const AddSealsReturnPage = () => {
   return (
-    <ContentLayout title='Add Sale'>ss</ContentLayout>
+    <ContentLayout title="Add Sales Return">
+      <AddSealsReturn />
+    </ContentLayout>
   )
 }
 
-export default AddSealspage
+export default AddSealsReturnPage

@@ -110,6 +110,7 @@ model Organization {
   SealsOrder         SealsOrder[]
   SealsChallan       SealsChallan[]
   SalesInvoice       SalesInvoice[]
+  SealsReturn        SealsReturn[]
 
   @@map("organization")
 }
@@ -696,6 +697,8 @@ model SealsReturn {
   customerId String
   Customers  Customers @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
+  orgId            String
+  Organization     Organization       @relation(fields: [orgId], references: [id], onDelete: Cascade)
   address          String
   customerLedger   String?
   salesLadger      String?
