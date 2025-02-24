@@ -160,6 +160,7 @@ model Warehouse {
   SealsOrder         SealsOrder[]
   SealsChallan       SealsChallan[]
   SalesInvoice       SalesInvoice[]
+  SealsReturn        SealsReturn[]
 
   @@map("warehouse")
 }
@@ -195,6 +196,7 @@ model Product {
   SealsProduct       SealsProduct[]
   SealsChallanItem   SealsChallanItem[]
   SealsInvoiceItems  SealsInvoiceItems[]
+  SealsReturnItems   SealsReturnItems[]
 
   @@map("product")
 }
@@ -275,6 +277,7 @@ model Branch {
   SealsOrder     SealsOrder[]
   SealsChallan   SealsChallan[]
   SalesInvoice   SalesInvoice[]
+  SealsReturn    SealsReturn[]
 
   @@map("branch")
 }
@@ -512,6 +515,7 @@ model Customers {
   SealsOrder     SealsOrder[]
   SealsChallan   SealsChallan[]
   SalesInvoice   SalesInvoice[]
+  SealsReturn    SealsReturn[]
 }
 
 model SealsProduct {
@@ -649,11 +653,52 @@ model SalesInvoice {
   salesExucutive   User   @relation(fields: [salesExucutiveId], references: [id], onDelete: Cascade)
   exucutiveMobile  String
 
-  sealsChallanId String @unique
+  sealsChallanId String       @unique
   SealsChallan   SealsChallan @relation(fields: [sealsChallanId], references: [id], onDelete: Cascade)
 
   netInvoiceAmount String
   InvoiceItems     SealsInvoiceItems[]
   orgId            String
   Organization     Organization        @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  SealsReturn SealsReturn?
+}
+
+model SealsReturnItems {
+  id String @id @default(cuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  quentity    Int
+  rate        Float
+  returnId    String
+  SealsReturn SealsReturn @relation(fields: [returnId], references: [id], onDelete: Cascade)
+}
+
+model SealsReturn {
+  id String @id @default(cuid())
+
+  returnNo String
+
+  invoiceId String       @unique
+  Invoice   SalesInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  dueDate    DateTime
+  returnDate DateTime
+
+  branceId String
+  Branch   Branch @relation(fields: [branceId], references: [id], onDelete: Cascade)
+
+  warehouseId String
+  Warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  customerId String
+  Customers  Customers @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  address          String
+  customerLedger   String?
+  salesLadger      String?
+  remark           String?
+  SealsReturnItems SealsReturnItems[]
 }
