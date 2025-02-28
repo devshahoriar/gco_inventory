@@ -67,16 +67,39 @@
   }
 }
 
-
-.react-date-picker__wrapper{
+.react-date-picker__wrapper {
   @apply !bg-none text-foreground rounded-md !px-2 !py-1 !border-none;
 }
-.react-calendar{
+.react-calendar {
   @apply !bg-background !text-foreground;
 }
-.react-calendar button{
-  @apply hover:dark:!bg-secondary hover:dark:!text-secondary-foreground dark:!bg-transparent
+.react-calendar button {
+  @apply hover:dark:!bg-secondary hover:dark:!text-secondary-foreground dark:!bg-transparent;
 }
-.react-date-picker__button svg{
-  @apply dark:!stroke-white
+.react-date-picker__button svg {
+  @apply dark:!stroke-white;
+}
+
+.printable tr {
+  page-break-inside: avoid;
+  page-break-after: auto;
+}
+@media print {
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  @page {
+    margin: 0;
+    size: auto;
+  }
+  html, body {
+    width: 100%;
+    height: 100%;
+  }
+  .print\:p-0 {
+    padding: 0 !important;
+  }
 }

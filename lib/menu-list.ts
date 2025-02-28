@@ -177,8 +177,8 @@ export function getMenuList(pathname: string): Group[] {
               label: 'Sales Report',
             },
             {
-              href: '/report/order',
-              label: 'Order Report',
+              href: '/report/purchase',
+              label: 'Purchase Report',
             },
             {
               href: '/report/production',
