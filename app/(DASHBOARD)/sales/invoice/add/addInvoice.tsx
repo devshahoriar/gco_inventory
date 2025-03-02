@@ -133,12 +133,7 @@ const AddInvoice = () => {
       if (!formData.challanId) {
         throw new Error('Please select a delivery challan')
       }
-      if (!formData.salesLedger) {
-        throw new Error('Sales ledger is required')
-      }
-      if (!formData.customerLedger) {
-        throw new Error('Customer ledger is required')
-      }
+   
       if (!formData.address) {
         throw new Error('Delivery address is required')
       }
@@ -148,9 +143,7 @@ const AddInvoice = () => {
       if (formData.items.some((item) => !item.rate || item.rate <= 0)) {
         throw new Error('All items must have a valid rate')
       }
-      if (formData.items.some((item) => !item.batch)) {
-        throw new Error('All items must have a batch number')
-      }
+  
 
       await addSalesInvoice(formData)
 
