@@ -4,11 +4,11 @@
 import { getActiveOrg } from '@/lib/auth'
 import prisma from '@/prisma/db'
 
-export const getAllBrances = async (q: string) => {
-  const activOrgId = await getActiveOrg()
+export const getAllBranches = async (q: string) => {
+  const activeOrgId = await getActiveOrg()
   const branches = await prisma.branch.findMany({
     where: {
-      organizationId: activOrgId,
+      organizationId: activeOrgId,
       name: {
         contains: q,
       },
@@ -26,17 +26,17 @@ export const getAllBrances = async (q: string) => {
   ]
 }
 
-export const getPurches = async (
+export const getSales = async (
   branchId: string,
   startDate: Date,
   endDate: Date
 ) => {
-  const activOrgId = await getActiveOrg()
+  const activeOrgId = await getActiveOrg()
   
   // Base query condition - filter by organization and date range
   const whereCondition: any = {
-    orgId: activOrgId,
-    invoideDate: {
+    orgId: activeOrgId,
+    invoiceDate: {
       gte: startDate,
       lte: endDate,
     },
@@ -47,11 +47,11 @@ export const getPurches = async (
     whereCondition.branceId = branchId;
   }
   
-  return await prisma.invoice.findMany({
+  return await prisma.salesInvoice.findMany({
     where: whereCondition,
     select: {
       id: true,
-      invoideDate: true,
+      invoiceDate: true,
       invoiceNo: true,
       InvoiceItems: {
         select: {
@@ -70,7 +70,7 @@ export const getPurches = async (
           },
         },
       },
-      Supplier: {
+      Customers: {
         select: {
           name: true,
         },
@@ -83,7 +83,7 @@ export const getPurches = async (
     },
     orderBy: [
       { Branch: { name: 'asc' } },
-      { invoideDate: 'asc' }
+      { invoiceDate: 'asc' }
     ]
   })
 }

@@ -1,9 +1,11 @@
 import { ContentLayout } from '@/components/admin-panel/content-layout'
-import React from 'react'
+import InputCard from './InputCard'
 
 const SalesReportPage = () => {
   return (
-    <ContentLayout title="Sales Report">SalesReportPage</ContentLayout>
+    <ContentLayout title="Sales Report">
+      <InputCard />
+    </ContentLayout>
   )
 }
 

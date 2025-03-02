@@ -14,7 +14,7 @@ import {
 import DateInput from '@/components/ui/DateInput'
 import { Label } from '@/components/ui/label'
 import { useState } from 'react'
-import { getAllBrances, getPurches } from './action'
+import { getAllBranches, getSales } from './action'
 import PrintPage from './PrintPage'
 
 interface FormData {
@@ -52,7 +52,7 @@ const InputCard = () => {
         setLoading(false)
         return
       }
-      const data = await getPurches(
+      const data = await getSales(
         formData.branchId,
         formData.startDate,
         formData.endDate
@@ -74,9 +74,9 @@ const InputCard = () => {
       <div className="flex justify-center print:hidden">
         <Card className="w-full md:w-[500px]">
           <CardHeader>
-            <CardTitle>Purchase Report</CardTitle>
+            <CardTitle>Sales Report</CardTitle>
             <CardDescription>
-              Get your Purchase Report by branch and date range
+              Get your Sales Report by branch and date range
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -84,7 +84,7 @@ const InputCard = () => {
               <Label>Select Branch</Label>
               <AsyncSelect
                 placeholder="Select Branch"
-                fetcher={getAllBrances as any}
+                fetcher={getAllBranches as any}
                 getOptionValue={(item: any) => item.id}
                 getDisplayValue={(item) => item.name}
                 renderOption={(item) => <>{item.name}</>}

@@ -11,7 +11,7 @@ const PrintPage = ({
   data: any,
   startDate: Date | null,
   endDate: Date | null,
-  branchId?: string,
+  branchId: string,
   branchName?: string
 }) => {
   // If no data or dates are provided, don't render anything
@@ -33,9 +33,9 @@ const PrintPage = ({
 
   return (
     <div className='print:w-full p-4 print:p-4'>
-      <h1 className="font-bold text-2xl text-center">Purchase Register</h1>
+      <h1 className="font-bold text-2xl text-center">Sales Register</h1>
       <p className='text-center'>
-        {isAllBranches ? 'All Branches' : branchName ? `Branch: ${branchName}` : ''}
+        {isAllBranches ? 'All Branches' : `Branch: ${branchName}`}
       </p>
       <p className='text-center'>From Date: {formattedStartDate} To Date: {formattedEndDate}</p>
       <p className='text-center text-sm'>Print Date: {format(new Date(),'dd MMM yyyy hh:mm bb')}</p>
@@ -46,7 +46,7 @@ const PrintPage = ({
             {isAllBranches && (
               <th className="border border-gray-300 px-2 py-1 text-xs font-medium text-left">Branch</th>
             )}
-            <th className="border border-gray-300 px-2 py-1 text-xs font-medium text-left">Supplier Name</th>
+            <th className="border border-gray-300 px-2 py-1 text-xs font-medium text-left">Customer Name</th>
             <th className="border border-gray-300 px-2 py-1 text-xs font-medium text-center">Invoice<br/>Date</th>
             <th className="border border-gray-300 px-2 py-1 text-xs font-medium text-center">Invoice<br/>No</th>
             <th className="border border-gray-300 px-2 py-1 text-xs font-medium text-left">Particulars</th>
@@ -64,7 +64,7 @@ const PrintPage = ({
             // For each invoice, map through its items
             return invoice.InvoiceItems.map((item: any, itemIndex: number) => {
               const amount = item.quantity * item.rate
-              const discountAmount = (amount * item.discount) / 100
+              const discountAmount = item.discount ? (amount * item.discount) / 100 : 0
               const totalAfterDiscount = amount - discountAmount
               const otherAdjustments = 0 // This data needs to come from backend if available
               const netAmount = totalAfterDiscount + otherAdjustments
@@ -87,10 +87,10 @@ const PrintPage = ({
                     </td>
                   )}
                   <td className="border border-gray-300 px-2 py-1 text-xs">
-                    {itemIndex === 0 ? invoice.Supplier.name : ''}
+                    {itemIndex === 0 ? invoice.Customers.name : ''}
                   </td>
                   <td className="border border-gray-300 px-2 py-1 text-xs text-center">
-                    {itemIndex === 0 ? format(new Date(invoice.invoideDate), 'dd/MM/yyyy') : ''}
+                    {itemIndex === 0 ? format(new Date(invoice.invoiceDate), 'dd/MM/yyyy') : ''}
                   </td>
                   <td className="border border-gray-300 px-2 py-1 text-xs text-center">
                     {itemIndex === 0 ? invoice.invoiceNo : ''}
