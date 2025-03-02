@@ -133,7 +133,7 @@ const AddInvoice = () => {
       if (!formData.challanId) {
         throw new Error('Please select a delivery challan')
       }
-   
+
       if (!formData.address) {
         throw new Error('Delivery address is required')
       }
@@ -143,9 +143,12 @@ const AddInvoice = () => {
       if (formData.items.some((item) => !item.rate || item.rate <= 0)) {
         throw new Error('All items must have a valid rate')
       }
-  
 
-      await addSalesInvoice(formData)
+      const res: any = await addSalesInvoice(formData)
+      if (res?.error) {
+        setError(res?.message)
+        return
+      }
 
       toast.success('Sales invoice created successfully')
 
@@ -467,11 +470,7 @@ const AddInvoice = () => {
         </div>
       )}
 
-      {error && (
-        <div className="text-red-500 text-sm mt-3">
-          {error}
-        </div>
-      )}
+      {error && <div className="text-red-500 text-sm mt-3">{error}</div>}
 
       <Button
         className="w-full"

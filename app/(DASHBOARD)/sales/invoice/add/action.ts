@@ -96,11 +96,12 @@ export const addSalesInvoice = async (data: any) => {
       })
 
       if (!existingStock || existingStock.quantity < item.quantity) {
-        throw new Error(
-          `Insufficient stock for product: ${item.productName}. Available: ${
-            existingStock?.quantity || 0
-          }`
-        )
+        return {
+          error: true,
+          message: `Insufficient stock for product: ${
+          item.productName
+        }. Available: ${existingStock?.quantity || 0}`
+        }
       }
     }
 
