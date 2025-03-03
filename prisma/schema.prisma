@@ -111,6 +111,7 @@ model Organization {
   SealsChallan       SealsChallan[]
   SalesInvoice       SalesInvoice[]
   SealsReturn        SealsReturn[]
+  Damage             Damage[]
 
   @@map("organization")
 }
@@ -162,6 +163,7 @@ model Warehouse {
   SealsChallan       SealsChallan[]
   SalesInvoice       SalesInvoice[]
   SealsReturn        SealsReturn[]
+  Damage             Damage[]
 
   @@map("warehouse")
 }
@@ -198,6 +200,7 @@ model Product {
   SealsChallanItem   SealsChallanItem[]
   SealsInvoiceItems  SealsInvoiceItems[]
   SealsReturnItems   SealsReturnItems[]
+  Damage             Damage[]
 
   @@map("product")
 }
@@ -704,4 +707,18 @@ model SealsReturn {
   salesLadger      String?
   remark           String?
   SealsReturnItems SealsReturnItems[]
+}
+
+model Damage {
+  id           String       @id @default(cuid())
+  damageNo     String
+  wareHouseId  String
+  Warehouse    Warehouse    @relation(fields: [wareHouseId], references: [id], onDelete: Cascade)
+  orgId        String
+  Organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity     Int
+  remark       String?
+  damageDate   DateTime
 }
