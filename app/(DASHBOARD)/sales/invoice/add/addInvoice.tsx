@@ -23,6 +23,7 @@ import {
 } from './action'
 import useSWR from 'swr'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 interface InvoiceItem {
   productId: string
@@ -123,13 +124,13 @@ const AddInvoice = () => {
   })
 
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   const handleSubmit = async () => {
     try {
       setError(null)
       setLoading(true)
 
-      // Validation
       if (!formData.challanId) {
         throw new Error('Please select a delivery challan')
       }
@@ -173,7 +174,8 @@ const AddInvoice = () => {
         netAmount: '0',
       }))
 
-      mutate() // Refresh invoice number
+      router.push('/sales/invoice')
+      mutate()
     } catch (err: any) {
       setError(err?.message || 'Failed to create invoice')
     } finally {

@@ -19,6 +19,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 interface ReturnItem {
   productId: string
@@ -108,7 +109,7 @@ const AddSealsReturn = () => {
       setFormData(prev => ({ ...prev, returnNo: data }))
     }
   })
-
+  const router = useRouter()
   const handleInvoiceSelect = (value: string, options?: any[]) => {
     if (!value || !options) {
       return setFormData(prev => ({
@@ -165,6 +166,7 @@ const AddSealsReturn = () => {
         ...initialData,
         returnNo: prev.returnNo,
       }))
+      router.push('/sales/return')
       mutate()
       setLoading(false)
     } catch (error: any) {

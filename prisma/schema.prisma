@@ -719,6 +719,7 @@ model Damage {
   productId    String
   product      Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
   quantity     Int
+  price        Float
   remark       String?
   damageDate   DateTime
 }

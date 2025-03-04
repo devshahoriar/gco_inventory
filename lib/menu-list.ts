@@ -188,6 +188,10 @@ export function getMenuList(pathname: string): Group[] {
               href: '/report/production',
               label: 'Production Report',
             },
+            {
+              href: '/report/monthly_report',
+              label: 'Monthly Report',
+            },
           ],
         },
       ],

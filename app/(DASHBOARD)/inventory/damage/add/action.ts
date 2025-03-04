@@ -71,6 +71,7 @@ export const saveDamage = async (data: {
   warehouseId: string
   productId: string
   quantity: number
+  price: number
   remark?: string
   damageDate: Date
 }) => {
@@ -91,6 +92,10 @@ export const saveDamage = async (data: {
   
   if (!data.quantity || data.quantity <= 0) {
     return { error: true, message: 'Quantity must be greater than 0' }
+  }
+
+  if (!data.price || data.price <= 0) {
+    return { error: true, message: 'Price must be greater than 0' }
   }
 
   try {
@@ -118,6 +123,7 @@ export const saveDamage = async (data: {
           wareHouseId: data.warehouseId,
           productId: data.productId,
           quantity: data.quantity,
+          price: data.price,
           remark: data.remark,
           damageDate: data.damageDate,
           orgId: orgId,
